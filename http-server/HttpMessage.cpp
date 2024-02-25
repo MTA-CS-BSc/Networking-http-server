@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace simple_http_server {
+namespace HttpServer {
     std::string to_string(const QueryParams& params) {
         // TODO: Not implemented
     }
@@ -36,7 +36,7 @@ namespace simple_http_server {
         case HttpMethod::PATCH:
             return "PATCH";
         default:
-            return std::string();
+            return "";
         }
     }
 
@@ -51,7 +51,7 @@ namespace simple_http_server {
         case HttpVersion::HTTP_2_0:
             return "HTTP/2.0";
         default:
-            return std::string();
+            return "";
         }
     }
 
@@ -84,7 +84,7 @@ namespace simple_http_server {
         case HttpStatusCode::BadGateway:
             return "Bad Gateway";
         default:
-            return std::string();
+            return "";
         }
     }
 
@@ -240,4 +240,4 @@ namespace simple_http_server {
         throw std::logic_error("Method not implemented");
     }
 
-}  // namespace simple_http_server
+}

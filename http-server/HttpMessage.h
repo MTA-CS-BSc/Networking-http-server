@@ -5,12 +5,9 @@
 #include <string>
 #include <utility>
 
-#include "uri.h"
+#include "Uri.h"
 
-namespace simple_http_server {
-
-    // HTTP methods defined in the following document:
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
+namespace HttpServer {
     enum class HttpMethod {
         GET,
         HEAD,
@@ -23,7 +20,6 @@ namespace simple_http_server {
         PATCH
     };
 
-    // Here we only support HTTP/1.1
     enum class HttpVersion {
         HTTP_0_9 = 9,
         HTTP_1_0 = 10,
@@ -31,9 +27,6 @@ namespace simple_http_server {
         HTTP_2_0 = 20
     };
 
-    // HTTP response status codes as listed in:
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-    // Note that not all of them are present in this enum class
     enum class HttpStatusCode {
         Continue = 100,
         SwitchingProtocols = 101,
@@ -89,12 +82,12 @@ namespace simple_http_server {
         virtual ~HttpMessageInterface() = default;
 
         void SetHeader(const std::string& key, const std::string& value) {
-            headers_[key] = std::move(value);
+            headers_[key] = value;
         }
         void RemoveHeader(const std::string& key) { headers_.erase(key); }
         void ClearHeader() { headers_.clear(); }
         void SetContent(const std::string& content) {
-            content_ = std::move(content);
+            content_ = content;
             SetContentLength();
         }
         void ClearContent(const std::string& content) {
@@ -105,7 +98,7 @@ namespace simple_http_server {
         HttpVersion version() const { return version_; }
         std::string header(const std::string& key) const {
             if (headers_.count(key) > 0) return headers_.at(key);
-            return std::string();
+            return {};
         }
         std::map<std::string, std::string> headers() const { return headers_; }
         std::string content() const { return content_; }
@@ -119,7 +112,7 @@ namespace simple_http_server {
         QueryParams() : params_() { }
         ~QueryParams() = default;
         void SetParam(const std::string& key, const std::string& value) {
-            params_[key] = std::move(value);
+            params_[key] = value;
         }
         void RemoveParam(const std::string& key) { params_.erase(key); }
         void ClearParams() { params_.clear(); }
@@ -131,22 +124,24 @@ namespace simple_http_server {
     // It has a HTTP method and URI so that the server can identify
     // the corresponding resource and action
     class HttpRequest : public HttpMessageInterface {
+    private:
+        HttpMethod method_;
+        Uri uri_;
+        QueryParams params_;
     public:
         HttpRequest() : method_(HttpMethod::GET) {}
-        ~HttpRequest() = default;
+        ~HttpRequest() override = default;
 
         void SetMethod(HttpMethod method) { method_ = method; }
-        void SetUri(const Uri& uri) { uri_ = std::move(uri); }
+        void SetUri(const Uri& uri) { uri_ = uri; }
+        void SetQueryParams(const QueryParams& params) { params_ = params; }
 
+        QueryParams params() const { return params_; }
         HttpMethod method() const { return method_; }
         Uri uri() const { return uri_; }
 
         friend std::string to_string(const HttpRequest& request);
         friend HttpRequest string_to_request(const std::string& request_string);
-
-    private:
-        HttpMethod method_;
-        Uri uri_;
     };
 
     // An HTTPResponse object represents a single HTTP response
@@ -155,8 +150,8 @@ namespace simple_http_server {
     class HttpResponse : public HttpMessageInterface {
     public:
         HttpResponse() : status_code_(HttpStatusCode::Ok) {}
-        HttpResponse(HttpStatusCode status_code) : status_code_(status_code) {}
-        ~HttpResponse() = default;
+        explicit HttpResponse(HttpStatusCode status_code) : status_code_(status_code) {}
+        ~HttpResponse() override = default;
 
         void SetStatusCode(HttpStatusCode status_code) { status_code_ = status_code; }
 
@@ -169,12 +164,11 @@ namespace simple_http_server {
         HttpStatusCode status_code_;
     };
 
-    // Utility functions to convert HTTP message objects to string and vice versa
+// Utility functions to convert HTTP message objects to string and vice versa
     std::string to_string(const HttpRequest& request);
     std::string to_string(const HttpResponse& response, bool send_content = true);
     HttpRequest string_to_request(const std::string& request_string);
     HttpResponse string_to_response(const std::string& response_string);
-
-}  // namespace simple_http_server
+}
 
 #endif  // HTTP_MESSAGE_H_
