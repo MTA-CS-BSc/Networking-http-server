@@ -11,6 +11,7 @@
 #include <string.h>
 #include <time.h>
 #include <vector>
+#include <iostream>
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
@@ -45,12 +46,18 @@ namespace mta_http_server {
         std::map<Uri, std::map<HttpMethod, HttpRequestHandler_t>> request_handlers_;
         sockaddr_in server_service_;
         std::vector<SOCKET_STATE> sockets_;
+        int sockets_amount_;
         SOCKET_STATE* findListeningSocket();
+        bool addSocket(SOCKET id, int what);
+        void removeSocket(int index);
+        void acceptConnection(int index);
+        void receiveMessage(int index);
+        void sendMessage(int index);
 
     public:
         HttpServer() = default;
         explicit HttpServer(const std::string& host, std::uint16_t port) : 
-            host_(host), port_(port), running_(false),
+            host_(host), port_(port), running_(false), sockets_amount_(0),
             request_handlers_(), server_service_(), sockets_(std::vector<SOCKET_STATE>()) { }
         HttpServer(HttpServer&&) = default;
         HttpServer& operator=(HttpServer&&) = default;

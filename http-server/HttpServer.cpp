@@ -1,7 +1,7 @@
 #include "HttpServer.h"
 
 namespace mta_http_server {
-    void HttpServer::Start() {
+	void HttpServer::Start() {
 		WSAData wsa_data;
 
 		if (!port)
@@ -11,7 +11,7 @@ namespace mta_http_server {
 			throw std::runtime_error("Error at WSAStartup");
 
 		SOCKET listen_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		
+
 		if (INVALID_SOCKET == listen_socket) {
 			int last_err = WSAGetLastError();
 			WSACleanup();
@@ -31,7 +31,7 @@ namespace mta_http_server {
 		}
 
 		Listen(listen_socket);
-    }
+	}
 
 	void HttpServer::Listen(SOCKET& listen_socket) {
 		if (SOCKET_ERROR == listen(listen_socket, 5)) {
@@ -42,22 +42,22 @@ namespace mta_http_server {
 		}
 
 		// TODO: Add missing function
-		/*addSocket(listen_socket_, LISTEN);
-		running_ = true; */
+		addSocket(listen_socket, LISTEN);
+		running_ = true;
 	}
 
-    HttpResponse HttpServer::HandleHttpRequest(const HttpRequest& request) {
-        auto it = request_handlers_.find(request.uri());
-        if (it == request_handlers_.end()) {  // this uri is not registered
-            return HttpResponse(HttpStatusCode::NotFound);
-        }
-        auto callback_it = it->second.find(request.method());
+	HttpResponse HttpServer::HandleHttpRequest(const HttpRequest& request) {
+		auto it = request_handlers_.find(request.uri());
+		if (it == request_handlers_.end()) {  // this uri is not registered
+			return HttpResponse(HttpStatusCode::NotFound);
+		}
+		auto callback_it = it->second.find(request.method());
 
-        if (callback_it == it->second.end()) {  // no handler for this method
-            return HttpResponse(HttpStatusCode::MethodNotAllowed);
-        }
-        return callback_it->second(request);  // call handler to process the request
-    }
+		if (callback_it == it->second.end()) {  // no handler for this method
+			return HttpResponse(HttpStatusCode::MethodNotAllowed);
+		}
+		return callback_it->second(request);  // call handler to process the request
+	}
 
 	SOCKET_STATE* HttpServer::findListeningSocket() {
 		for (auto& item : sockets_) {
@@ -75,5 +75,147 @@ namespace mta_http_server {
 
 		closesocket(findListeningSocket()->id);
 		WSACleanup();
+	}
+
+	bool HttpServer::addSocket(SOCKET id, int what) {
+		for (int i = 0; i < Settings::MAX_SOCKETS; i++) {
+			if (sockets_[i].recv == SOCK_FUNC::EMPTY) {
+				sockets_[i].id = id;
+				sockets_[i].recv = what;
+				sockets_[i].send = SOCK_FUNC::IDLE;
+				sockets_[i].len = 0;
+				sockets_amount_++;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void HttpServer::removeSocket(int index)
+	{
+		sockets_[index].recv = EMPTY;
+		sockets_[index].send = EMPTY;
+		sockets_amount_--;
+	}
+
+	void HttpServer::acceptConnection(int index)
+	{
+		SOCKET id = sockets_[index].id;
+		struct sockaddr_in from;		// Address of sending partner
+		int fromLen = sizeof(from);
+
+		SOCKET msgSocket = accept(id, (struct sockaddr*)&from, &fromLen);
+
+		if (INVALID_SOCKET == msgSocket)
+			throw std::runtime_error("Server: Error at accept(): " + WSAGetLastError());
+
+		std::cout << "Server: Client " << inet_ntoa(from.sin_addr) << ":" << ntohs(from.sin_port) << " is connected." << std::endl;
+
+		unsigned long flag = 1;
+		if (ioctlsocket(msgSocket, FIONBIO, &flag) != 0)
+			throw std::runtime_error("Server: Error at accept(): " + WSAGetLastError());
+
+		if (!addSocket(msgSocket, RECEIVE)) {
+			std::cout << "\t\tToo many connections, dropped!\n";
+			closesocket(id);
+		}
+
+		return;
+	}
+
+	void HttpServer::receiveMessage(int index) {
+		SOCKET msgSocket = sockets_[index].id;
+
+		int len = sockets_[index].len;
+		int bytesRecv = recv(msgSocket, &sockets_[index].buffer[len], sizeof(sockets_[index].buffer) - len, 0);
+
+		if (SOCKET_ERROR == bytesRecv) {
+			std::cout << "Server: Error at recv(): " << WSAGetLastError() << std::endl;
+			closesocket(msgSocket);
+			removeSocket(index);
+			return;
+		}
+
+		if (bytesRecv == 0) {
+			closesocket(msgSocket);
+			removeSocket(index);
+			return;
+		}
+
+		else {
+			sockets_[index].buffer[len + bytesRecv] = '\0'; //add the null-terminating to make it a string
+			std::cout << "Server: Recieved: " << bytesRecv << " bytes of \"" << &sockets_[index].buffer[len] << "\" message.\n";
+
+			sockets_[index].len += bytesRecv;
+
+			//	if (sockets_[index].len > 0) {
+			//		if (strncmp(sockets_[index].buffer, "TimeString", 10) == 0) {
+			//			sockets_[index].send = SEND;
+			//			//sockets_[index].send_sub_type = SEND_TIME;
+			//			memcpy(sockets_[index].buffer, &sockets_[index].buffer[10], sockets_[index].len - 10);
+			//			sockets_[index].len -= 10;
+			//			return;
+			//		}
+
+			//		else if (strncmp(sockets_[index].buffer, "SecondsSince1970", 16) == 0) {
+			//			sockets_[index].send = SEND;
+			//			//sockets[index].sendSubType = SEND_SECONDS;
+			//			memcpy(sockets_[index].buffer, &sockets_[index].buffer[16], sockets_[index].len - 16);
+			//			sockets_[index].len -= 16;
+			//			return;
+			//		}
+
+			//		else if (strncmp(sockets_[index].buffer, "Exit", 4) == 0) {
+			//			closesocket(msgSocket);
+			//			removeSocket(index);
+			//			return;
+			//		}
+			//	}
+			//}
+
+		}
+
+
+	}
+
+	void HttpServer::sendMessage(int index) {
+		int bytesSent = 0;
+		char sendBuff[255];
+
+		SOCKET msgSocket = sockets_[index].id;
+
+		//TODO: Implement what to send
+		//if (sockets[index].sendSubType == SEND_TIME)
+		//{
+		//	// Answer client's request by the current time string.
+
+		//	// Get the current time.
+		//	time_t timer;
+		//	time(&timer);
+		//	// Parse the current time to printable string.
+		//	strcpy(sendBuff, ctime(&timer));
+		//	sendBuff[strlen(sendBuff) - 1] = 0; //to remove the new-line from the created string
+		//}
+		//else if (sockets[index].sendSubType == SEND_SECONDS)
+		//{
+		//	// Answer client's request by the current time in seconds.
+
+		//	// Get the current time.
+		//	time_t timer;
+		//	time(&timer);
+		//	// Convert the number to string.
+		//	itoa((int)timer, sendBuff, 10);
+		//}
+
+		bytesSent = send(msgSocket, sendBuff, (int)strlen(sendBuff), 0);
+		
+		if (SOCKET_ERROR == bytesSent) {
+			std::cout << "Time Server: Error at send(): " << WSAGetLastError() << std::endl;
+			return;
+		}
+
+		std::cout << "Time Server: Sent: " << bytesSent << "\\" << strlen(sendBuff) << " bytes of \"" << sendBuff << "\" message.\n";
+
+		sockets_[index].send = IDLE;
 	}
 }
