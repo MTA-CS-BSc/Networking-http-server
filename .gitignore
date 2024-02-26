@@ -34,3 +34,6 @@
 .vs/*
 /http-server/x64/Debug
 /x64/Debug
+/http-server/http-server.vcxproj
+/http-server/http-server.vcxproj.filters
+/http-server/http-server.vcxproj.user
