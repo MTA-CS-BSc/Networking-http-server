@@ -4,6 +4,7 @@
 #include <functional>
 #include "HttpMessage.h"
 #include "Uri.h"
+#include <stdexcept>
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
@@ -39,6 +40,7 @@ namespace mta_http_server {
             const HttpRequestHandler_t& callback) {
             request_handlers_[uri].insert(std::make_pair(method, callback));
         }
+        HttpResponse HandleHttpRequest(const HttpRequest& request);
 
         std::string host() const { return host_; }
         std::uint16_t port() const { return port_; }
