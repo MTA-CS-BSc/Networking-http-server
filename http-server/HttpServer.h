@@ -3,11 +3,26 @@
 
 #include <functional>
 #include "HttpMessage.h"
+#include "Settings.h"
 #include "Uri.h"
 #include <stdexcept>
+#pragma comment(lib, "Ws2_32.lib")
+#include <winsock2.h>
+#include <string.h>
+#include <time.h>
+#include <vector>
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
+
+typedef struct socket_state_t {
+    SOCKET id;			// Socket handle
+    int	recv;			// Receiving?
+    int	send;			// Sending?
+    int send_sub_type;	// Sending sub-type
+    char buffer[Settings::MAX_BUFFER_SIZE];
+    int len;
+} SOCKET_STATE;
 
 namespace mta_http_server {
     // A request handler should expect a request as argument and returns a response
@@ -19,18 +34,23 @@ namespace mta_http_server {
         std::uint16_t port_;
         bool running_;
         std::map<Uri, std::map<HttpMethod, HttpRequestHandler_t>> request_handlers_;
+        sockaddr_in server_service_;
+        std::vector<SOCKET_STATE> sockets_;
 
     public:
         HttpServer() = default;
         explicit HttpServer(const std::string& host, std::uint16_t port) : 
-            host_(host), port_(port), running_(false), request_handlers_() { }
+            host_(host), port_(port), running_(false),
+            request_handlers_(), server_service_(), sockets_(std::vector<SOCKET_STATE>()) { }
         HttpServer(HttpServer&&) = default;
         HttpServer& operator=(HttpServer&&) = default;
         ~HttpServer() = default;
 
         void Start();
-        void Listen();
+        void Listen(SOCKET& listen_socket);
         void Stop();
+
+        void SetPort(std::uint16_t port) { port_ = port; }
 
         void RegisterHttpRequestHandler(const std::string& path, HttpMethod method,
             const HttpRequestHandler_t& callback) {
