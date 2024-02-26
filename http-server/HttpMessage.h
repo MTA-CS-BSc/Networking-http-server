@@ -110,6 +110,7 @@ namespace HttpServer {
         std::map<std::string, std::string> params_;
     public:
         QueryParams() : params_() { }
+        QueryParams(const std::map<std::string, std::string> params) : params_(params) { }
         ~QueryParams() = default;
         void SetParam(const std::string& key, const std::string& value) {
             params_[key] = value;
@@ -136,7 +137,7 @@ namespace HttpServer {
         void SetUri(const Uri& uri) { uri_ = uri; }
         void SetQueryParams(const QueryParams& params) { params_ = params; }
 
-        QueryParams params() const { return params_; }
+        QueryParams params() const { return params_.params(); }
         HttpMethod method() const { return method_; }
         Uri uri() const { return uri_; }
 
@@ -164,11 +165,12 @@ namespace HttpServer {
         HttpStatusCode status_code_;
     };
 
-// Utility functions to convert HTTP message objects to string and vice versa
+      // Utility functions to convert HTTP message objects to string and vice versa
     std::string to_string(const HttpRequest& request);
     std::string to_string(const HttpResponse& response, bool send_content = true);
     HttpRequest string_to_request(const std::string& request_string);
     HttpResponse string_to_response(const std::string& response_string);
+    std::pair<std::string, std::map<std::string, std::string>> parseURI(const std::string& uri);
 }
 
 #endif  // HTTP_MESSAGE_H_

@@ -205,7 +205,12 @@ namespace HttpServer {
             throw std::invalid_argument("Invalid start line format");
         }
         request.SetMethod(string_to_method(method));
-        request.SetUri(Uri(path));
+
+        std::pair<std::string, std::map<std::string, std::string>> parsed_path = parseURI(path);
+        
+        request.SetUri(Uri(parsed_path.first));
+        request.SetQueryParams(QueryParams(parsed_path.second));
+
         if (string_to_version(version) != request.version()) {
             throw std::logic_error("HTTP version not supported");
         }
@@ -235,5 +240,43 @@ namespace HttpServer {
     HttpResponse string_to_response(const std::string& response_string) {
         throw std::logic_error("Method not implemented");
     }
+
+    std::pair<std::string, std::map<std::string, std::string>> parseURI(const std::string& uri) {
+    std::string baseURI;
+    std::map<std::string, std::string> params;
+
+    // Finding the position of '?' to separate base URI and query parameters
+    std::size_t queryPos = uri.find('?');
+    if (queryPos != std::string::npos) {
+        baseURI = uri.substr(0, queryPos); // Extracting base URI
+
+        // Extracting and parsing query parameters
+        std::string queryParams = uri.substr(queryPos + 1);
+        std::size_t start = 0, end;
+        while ((end = queryParams.find('&', start)) != std::string::npos) {
+            std::string param = queryParams.substr(start, end - start);
+            std::size_t equalPos = param.find('=');
+            if (equalPos != std::string::npos) {
+                std::string key = param.substr(0, equalPos);
+                std::string value = param.substr(equalPos + 1);
+                params[key] = value;
+            }
+            start = end + 1;
+        }
+
+        // Processing the last parameter (or the only parameter if there's only one)
+        std::string lastParam = queryParams.substr(start);
+        std::size_t equalPos = lastParam.find('=');
+        if (equalPos != std::string::npos) {
+            std::string key = lastParam.substr(0, equalPos);
+            std::string value = lastParam.substr(equalPos + 1);
+            params[key] = value;
+        }
+    } else {
+        baseURI = uri; // No query parameters, URI is just the base
+    }
+
+    return {baseURI, params};
+}
 
 }
