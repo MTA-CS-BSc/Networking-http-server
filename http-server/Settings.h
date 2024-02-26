@@ -13,6 +13,7 @@ namespace mta_http_server {
 		static constexpr char HOST[] = "0.0.0.0";
 		static constexpr int K_MAX_CONNECTIONS = 10000;
 		static constexpr int K_THREAD_POOL_SIZE = 5;
+		static constexpr int MAX_SOCKETS = 100;
 	};
 }
 #endif

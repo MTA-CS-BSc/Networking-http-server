@@ -1,9 +1,9 @@
 #ifndef HTTP_SERVER_H_
 #define HTTP_SERVER_H_
 
+#include "Settings.h"
 #include <functional>
 #include "HttpMessage.h"
-#include "Settings.h"
 #include "Uri.h"
 #include <stdexcept>
 #pragma comment(lib, "Ws2_32.lib")
@@ -14,6 +14,7 @@
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
+using mta_http_server::Settings;
 
 typedef struct socket_state_t {
     SOCKET id;			// Socket handle
