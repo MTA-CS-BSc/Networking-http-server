@@ -24,7 +24,7 @@ namespace HttpServer {
     public:
         Uri() = default;
         ~Uri() = default;
-        explicit Uri(std::string  path):path_(std::move(path)) { SetPathToLowercase(); }
+        explicit Uri(std::string path):path_(std::move(path)) { SetPathToLowercase(); }
 
         inline bool operator<(const Uri& other) const { return path_ < other.path_; }
         inline bool operator==(const Uri& other) const {

@@ -118,7 +118,6 @@ namespace HttpServer {
         void RemoveParam(const std::string& key) { params_.erase(key); }
         void ClearParams() { params_.clear(); }
         std::map<std::string, std::string> params() const { return params_; }
-        friend std::string to_string(const QueryParams & params);
     };
 
     // An HttpRequest object represents a single HTTP request
