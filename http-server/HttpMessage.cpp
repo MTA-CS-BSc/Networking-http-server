@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace HttpServer {
+namespace mta_http_server {
     std::string to_string(HttpMethod method) {
         switch (method) {
         case HttpMethod::GET:

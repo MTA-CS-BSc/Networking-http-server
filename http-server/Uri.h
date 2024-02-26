@@ -6,7 +6,7 @@
 #include <utility>
 #include <algorithm>
 
-namespace HttpServer {
+namespace mta_http_server {
     // A Uri object will contain a valid scheme (for example: HTTP), host,
     // port, and the actual URI path
     class Uri {
