@@ -11,10 +11,6 @@
 #include <utility>
 
 namespace HttpServer {
-    std::string to_string(const QueryParams& params) {
-        // TODO: Not implemented
-    }
-
     std::string to_string(HttpMethod method) {
         switch (method) {
         case HttpMethod::GET:
