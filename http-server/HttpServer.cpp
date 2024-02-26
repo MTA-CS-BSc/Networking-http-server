@@ -58,4 +58,22 @@ namespace mta_http_server {
         }
         return callback_it->second(request);  // call handler to process the request
     }
+
+	SOCKET_STATE* HttpServer::findListeningSocket() {
+		for (auto& item : sockets_) {
+			if (item.recv == SOCK_FUNC::LISTEN)
+				return &item;
+		}
+
+		return nullptr;
+	}
+
+	void HttpServer::ProcessEvents() {
+		while (running_) {
+			//TODO: Not implemented
+		}
+
+		closesocket(findListeningSocket()->id);
+		WSACleanup();
+	}
 }

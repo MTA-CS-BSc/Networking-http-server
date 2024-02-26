@@ -16,18 +16,26 @@ using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
 using mta_http_server::Settings;
 
-typedef struct socket_state_t {
-    SOCKET id;			// Socket handle
-    int	recv;			// Receiving?
-    int	send;			// Sending?
-    int send_sub_type;	// Sending sub-type
-    char buffer[Settings::MAX_BUFFER_SIZE];
-    int len;
-} SOCKET_STATE;
-
 namespace mta_http_server {
     // A request handler should expect a request as argument and returns a response
     using HttpRequestHandler_t = std::function<HttpResponse(const HttpRequest&)>;
+
+    typedef struct socket_state_t {
+        SOCKET id;			// Socket handle
+        int	recv;			// Receiving?
+        int	send;			// Sending?
+        int send_sub_type;	// Sending sub-type
+        char buffer[Settings::MAX_BUFFER_SIZE];
+        int len;
+    } SOCKET_STATE;
+
+    enum SOCK_FUNC {
+        EMPTY,
+        LISTEN,
+        RECEIVE,
+        IDLE,
+        SEND
+    };
 
 	class HttpServer {
     private:
@@ -37,6 +45,7 @@ namespace mta_http_server {
         std::map<Uri, std::map<HttpMethod, HttpRequestHandler_t>> request_handlers_;
         sockaddr_in server_service_;
         std::vector<SOCKET_STATE> sockets_;
+        SOCKET_STATE* findListeningSocket();
 
     public:
         HttpServer() = default;
@@ -49,7 +58,8 @@ namespace mta_http_server {
 
         void Start();
         void Listen(SOCKET& listen_socket);
-        void Stop();
+        inline void Stop() { running_ = false; }
+        void ProcessEvents();
 
         void SetPort(std::uint16_t port) { port_ = port; }
 
