@@ -32,7 +32,7 @@ namespace HttpServer {
         }
 
         void SetPath(const std::string& path) {
-            path_ = std::move(path);
+            path_ = path;
             SetPathToLowercase();
         }
 
