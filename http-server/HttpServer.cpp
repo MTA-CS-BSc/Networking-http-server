@@ -144,7 +144,40 @@ namespace mta_http_server {
 		running_ = true;
 	}
 
+	std::string HttpServer::joinMethodsToString(const std::vector<HttpMethod>& allowed_methods) {
+		return std::accumulate(allowed_methods.begin(), allowed_methods.end(),
+			std::string(),
+			[](const std::string& a, const HttpMethod& method) -> std::string {
+				return a + (a.length() > 0 ? ", " : "") + to_string(method);
+			});
+	}
+
+	std::vector<HttpMethod> HttpServer::getMethodsForURI(const Uri& uri) {
+		std::vector<HttpMethod> methods;
+		auto it = request_handlers_.find(uri);
+
+		if (it != request_handlers_.end()) {
+			auto methods_map_for_uri = it->second;
+
+			for (const auto& pair : methods_map_for_uri)
+				methods.push_back(pair.first);
+		}
+
+		return methods;
+	}
+
+	HttpResponse HttpServer::handleOptionsRequest(const HttpRequest& request) {
+		HttpResponse response = HttpResponse(HttpStatusCode::NoContent);
+		std::vector<HttpMethod> allow_methods = getMethodsForURI(request.uri());
+		std::string methods_string = joinMethodsToString(allow_methods);
+		response.SetHeader("Allow", methods_string);
+		return response;
+	}
+	
 	HttpResponse HttpServer::HandleHttpRequest(const HttpRequest& request) {
+		if (request.method() == HttpMethod::OPTIONS)
+			return handleOptionsRequest(request);
+
 		auto it = request_handlers_.find(request.uri());
 		if (it == request_handlers_.end())  // this uri is not registered
 			return HttpResponse(HttpStatusCode::NotFound);
