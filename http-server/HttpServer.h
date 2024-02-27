@@ -73,7 +73,8 @@ namespace mta_http_server {
     public:
         SocketService(HttpServer* parent) :
             parent_(parent), server_service_(),
-            max_sockets_(Settings::MAX_SOCKETS), sockets_amount_(0) { }
+            max_sockets_(Settings::MAX_SOCKETS),
+            sockets_amount_(0), sockets_() { }
         ~SocketService() = default;
         SocketService(SocketService&&) = default;
         SOCKET_STATE* findListeningSocket();
