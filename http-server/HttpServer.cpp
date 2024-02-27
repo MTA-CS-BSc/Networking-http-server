@@ -2,7 +2,7 @@
 
 namespace mta_http_server {
 	bool SocketService::addSocket(SOCKET id, SocketFunction what) {
-		for (int i = 0; i < Settings::MAX_SOCKETS; i++) {
+		for (int i = 0; i < max_sockets(); i++) {
 			if (sockets_[i].recv == SocketFunction::EMPTY) {
 				sockets_[i].id = id;
 				sockets_[i].recv = what;
