@@ -58,20 +58,12 @@ namespace mta_http_server {
             return HttpResponse();
             };
 
-        void RegisterOptions(const Uri& uri) {
-            request_handlers_[uri].insert(std::make_pair(HttpMethod::OPTIONS, dummy_handler));
+        void RegisterDummy(const Uri& uri, HttpMethod method) {
+            request_handlers_[uri].insert(std::make_pair(method, dummy_handler));
         }
 
-        void RegisterOptions(const std::string& path) {
-            request_handlers_[Uri(path)].insert(std::make_pair(HttpMethod::OPTIONS, dummy_handler));
-        }
-        
-        void RegisterHead(const Uri& uri) {
-            request_handlers_[uri].insert(std::make_pair(HttpMethod::HEAD, dummy_handler));
-        }
-
-        void RegisterHead(const std::string& path) {
-            request_handlers_[Uri(path)].insert(std::make_pair(HttpMethod::HEAD, dummy_handler));
+        void RegisterDummy(const std::string& path, HttpMethod method) {
+            request_handlers_[Uri(path)].insert(std::make_pair(method, dummy_handler));
         }
 
         HttpRequestHandler_t get_health = [](const HttpRequest& request) -> HttpResponse {
@@ -87,8 +79,8 @@ namespace mta_http_server {
         const request_handlers_t& request_handlers() const { return request_handlers_; }
         DefaultRequestHandlers() {
             RegisterHttpRequestHandler("/health", HttpMethod::GET, get_health);
-            RegisterHead("/health");
-            RegisterOptions("/health");
+            RegisterDummy("/health", HttpMethod::HEAD);
+            RegisterDummy("/health", HttpMethod::OPTIONS);
         }
     };
 
