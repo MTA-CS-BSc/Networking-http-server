@@ -46,6 +46,7 @@ namespace mta_http_server {
     public:
         SocketService() : server_service_(), sockets_(std::vector<SOCKET_STATE>()), sockets_amount_(0) {}
         ~SocketService() = default;
+        SocketService(SocketService&&) = default;
         SOCKET_STATE* findListeningSocket();
         bool addSocket(SOCKET id, SocketFunction what);
         void removeSocket(int index);
@@ -67,7 +68,6 @@ namespace mta_http_server {
         explicit HttpServer(const std::string& host, std::uint16_t port) : 
             host_(host), port_(port), running_(false),
             request_handlers_(), socket_service_(SocketService()) { }
-        HttpServer(HttpServer&&) = default;
         HttpServer& operator=(HttpServer&&) = default;
         ~HttpServer() = default;
 
