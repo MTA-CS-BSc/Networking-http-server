@@ -11,7 +11,6 @@
 #include <winsock2.h>
 #include <string.h>
 #include <time.h>
-#include <vector>
 #include <iostream>
 
 using mta_http_server::HttpRequest;
@@ -67,16 +66,14 @@ namespace mta_http_server {
     class SocketService {
     private:
         sockaddr_in server_service_;
-        std::vector<SOCKET_STATE> sockets_;
+        SOCKET_STATE sockets_[Settings::MAX_SOCKETS];
         int sockets_amount_;
         int max_sockets_;
         HttpServer* parent_;
     public:
         SocketService(HttpServer* parent) :
             parent_(parent), server_service_(),
-            max_sockets_(Settings::MAX_SOCKETS), sockets_amount_(0),
-            sockets_(std::vector<SOCKET_STATE>(max_sockets_, SOCKET_STATE())) {          
-        }
+            max_sockets_(Settings::MAX_SOCKETS), sockets_amount_(0) { }
         ~SocketService() = default;
         SocketService(SocketService&&) = default;
         SOCKET_STATE* findListeningSocket();
@@ -93,7 +90,7 @@ namespace mta_http_server {
             server_service_.sin_port = htons(port);
         }
 
-        const std::vector<SOCKET_STATE>& sockets() const { return sockets_;  }
+        const SOCKET_STATE* sockets() const { return sockets_;  }
         const int max_sockets() const { return max_sockets_;  }
         const int sockets_amount() const { return sockets_amount_; }
         const sockaddr_in& server_service() const { return server_service_; }
@@ -140,7 +137,7 @@ namespace mta_http_server {
 
         HttpResponse HandleHttpRequest(const HttpRequest& request);
 
-        const std::vector<SOCKET_STATE>& sockets() const { return socket_service_.sockets(); }
+        const SOCKET_STATE* sockets() const { return socket_service_.sockets(); }
         const int max_sockets() const { return socket_service_.max_sockets(); }
         const std::string host() const { return host_; }
         const std::uint16_t port() const { return port_; }
