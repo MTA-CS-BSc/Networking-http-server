@@ -2,8 +2,11 @@
 #define HTTP_MESSAGE_H_
 
 #include <map>
-#include <string>
 #include <utility>
+#include <map>
+#include <sstream>
+#include <stdexcept>
+#include <iomanip>
 
 #include "Uri.h"
 

@@ -2,8 +2,6 @@
 #define URI_H_
 
 #include <string>
-#include <cctype>
-#include <utility>
 #include <algorithm>
 
 namespace mta_http_server {

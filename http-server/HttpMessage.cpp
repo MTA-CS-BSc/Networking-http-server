@@ -1,16 +1,5 @@
 #include "HttpMessage.h"
 
-#include <algorithm>
-#include <cctype>
-#include <iterator>
-#include <map>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <type_traits>
-#include <utility>
-#include <iomanip>
-
 namespace mta_http_server {
     std::string to_string(HttpMethod method) {
         switch (method) {

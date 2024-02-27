@@ -2,16 +2,14 @@
 #define HTTP_SERVER_H_
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
+#pragma comment(lib, "Ws2_32.lib")
+#include <winsock2.h>
+#include <time.h>
+#include <iostream>
 #include "Settings.h"
 #include <functional>
 #include "HttpMessage.h"
 #include "Uri.h"
-#include <stdexcept>
-#pragma comment(lib, "Ws2_32.lib")
-#include <winsock2.h>
-#include <string.h>
-#include <time.h>
-#include <iostream>
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
