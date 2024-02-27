@@ -179,6 +179,13 @@ namespace mta_http_server {
 		return respone;
 	}
 
+	HttpResponse HttpServer::handleTraceRequest(const HttpRequest& request) {
+		HttpResponse response = HttpResponse(HttpStatusCode::Ok);
+		response.SetHeader("Content-Type", "message/http");
+		response.SetContent(to_string(request));
+		return response;
+	}
+
 	HttpResponse HttpServer::HandleHttpRequest(const HttpRequest& request) {
 		auto it = request_handlers_.find(request.uri());
 		if (it == request_handlers_.end())  // this uri is not registered
@@ -192,6 +199,8 @@ namespace mta_http_server {
 		switch (request.method()) {
 		case HttpMethod::OPTIONS:
 			return handleOptionsRequest(request);
+		case HttpMethod::TRACE:
+			return handleTraceRequest(request);
 		case HttpMethod::HEAD:
 			return handleHeadRequest(request);
 		default:

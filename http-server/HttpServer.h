@@ -47,6 +47,7 @@ namespace mta_http_server {
         void RegisterHttpRequestHandler(const Uri& uri, HttpMethod method,
             const HttpRequestHandler_t& callback) {
             if (method == HttpMethod::OPTIONS ||
+                method == HttpMethod::TRACE ||
                 method == HttpMethod::HEAD)
                 throw std::logic_error("Can't assign to functions with default behaviour");
 
@@ -77,20 +78,12 @@ namespace mta_http_server {
 
             return response;
         };
-
-        HttpRequestHandler_t g_trace = [](const HttpRequest& request) -> HttpResponse {
-            HttpResponse response = HttpResponse(HttpStatusCode::Ok);
-            response.SetHeader("Content-Type", "message/http");
-            response.SetContent(to_string(request));
-            return response;
-        };
-
     public:
         const request_handlers_t& request_handlers() const { return request_handlers_; }
         DefaultRequestHandlers() {
             RegisterHttpRequestHandler("/health", HttpMethod::GET, get_health);
-            RegisterHttpRequestHandler("/health", HttpMethod::TRACE, g_trace);
             RegisterDummy("/health", HttpMethod::HEAD);
+            RegisterDummy("/health", HttpMethod::TRACE);
             RegisterDummy("/health", HttpMethod::OPTIONS);
         }
     };
@@ -141,6 +134,7 @@ namespace mta_http_server {
         HttpResponse handleOptionsRequest(const HttpRequest&);
         HttpResponse handleHeadRequest(const HttpRequest&);
         std::vector<HttpMethod> getMethodsForURI(const Uri&);
+        HttpResponse handleTraceRequest(const HttpRequest&);
     public:
         HttpServer() = default;
         HttpServer(const HttpServer&) = default;
