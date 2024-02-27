@@ -27,13 +27,13 @@ namespace mta_http_server {
         SOCKET id;			// Socket handle
         int	recv;			// Receiving?
         int	send;			// Sending?
-        int send_sub_type;	// Sending sub-type
         char buffer[Settings::MAX_BUFFER_SIZE];
         int len;
     } SOCKET_STATE;
 
     typedef std::map<Uri, std::map<HttpMethod, HttpRequestHandler_t>> request_handlers_t;
-    
+    typedef class HttpServer;
+
     enum SocketFunction {
         EMPTY,
         LISTEN,
@@ -58,7 +58,9 @@ namespace mta_http_server {
         }
     public:
         const request_handlers_t& request_handlers() const { return request_handlers_; }
-        DefaultRequestHandlers() : request_handlers_(request_handlers_t()) {} //TODO: Not implemented
+        
+        //TODO: Not implemented
+        DefaultRequestHandlers() : request_handlers_(request_handlers_t()) {}
     };
 
     // A handler for server sockets
@@ -68,8 +70,13 @@ namespace mta_http_server {
         std::vector<SOCKET_STATE> sockets_;
         int sockets_amount_;
         int max_sockets_;
+        HttpServer* parent_;
     public:
-        SocketService() : server_service_(), sockets_(std::vector<SOCKET_STATE>()), sockets_amount_(0), max_sockets_(Settings::MAX_SOCKETS) {}
+        SocketService(HttpServer* parent) :
+            parent_(parent), server_service_(),
+            max_sockets_(Settings::MAX_SOCKETS), sockets_amount_(0),
+            sockets_(std::vector<SOCKET_STATE>(max_sockets_, SOCKET_STATE())) {          
+        }
         ~SocketService() = default;
         SocketService(SocketService&&) = default;
         SOCKET_STATE* findListeningSocket();
@@ -105,8 +112,11 @@ namespace mta_http_server {
         HttpServer() = default;
         HttpServer(const HttpServer&) = default;
         HttpServer(HttpServer&&) = default;
+        
         explicit HttpServer(const std::string& host, std::uint16_t port) : 
-            host_(host), port_(port), running_(false), request_handlers_(), socket_service_(SocketService()) { }
+            host_(host), port_(port), running_(false),
+            request_handlers_(), socket_service_(SocketService(this)) { }
+
         HttpServer& operator=(HttpServer&&) = default;
         ~HttpServer() = default;
 

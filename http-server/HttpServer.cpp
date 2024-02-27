@@ -65,39 +65,25 @@ namespace mta_http_server {
 		}
 
 		else {
+			// Get message from socket
 			sockets_[index].buffer[len + bytesRecv] = '\0'; //add the null-terminating to make it a string
 			std::cout << "Server: Recieved: " << bytesRecv << " bytes of \"" << &sockets_[index].buffer[len] << "\" message.\n";
-
 			sockets_[index].len += bytesRecv;
 
-			//	if (sockets_[index].len > 0) {
-			//		if (strncmp(sockets_[index].buffer, "TimeString", 10) == 0) {
-			//			sockets_[index].send = SEND;
-			//			//sockets_[index].send_sub_type = SEND_TIME;
-			//			memcpy(sockets_[index].buffer, &sockets_[index].buffer[10], sockets_[index].len - 10);
-			//			sockets_[index].len -= 10;
-			//			return;
-			//		}
+			// Convert to HttpRequest
+			HttpRequest request = string_to_request(sockets_[index].buffer);
 
-			//		else if (strncmp(sockets_[index].buffer, "SecondsSince1970", 16) == 0) {
-			//			sockets_[index].send = SEND;
-			//			//sockets[index].sendSubType = SEND_SECONDS;
-			//			memcpy(sockets_[index].buffer, &sockets_[index].buffer[16], sockets_[index].len - 16);
-			//			sockets_[index].len -= 16;
-			//			return;
-			//		}
+			// Handle request
+			HttpResponse response = parent_->HandleHttpRequest(request);
 
-			//		else if (strncmp(sockets_[index].buffer, "Exit", 4) == 0) {
-			//			closesocket(msgSocket);
-			//			removeSocket(index);
-			//			return;
-			//		}
-			//	}
-			//}
+			// Convert response to string for socket
+			std::string string_response = to_string(response);
 
+			// Copy response data to corresponding buffer
+			sockets_[index].recv = EMPTY;
+			sockets_[index].send = SEND;
+			memcpy(sockets_[index].buffer, string_response.c_str(), string_response.size());
 		}
-
-
 	}
 
 	void SocketService::sendMessage(int index) {
