@@ -90,15 +90,13 @@ namespace mta_http_server {
 		return false;
 	}
 
-	void SocketService::removeSocket(int index)
-	{
+	void SocketService::removeSocket(int index) {
 		sockets_[index].recv = EMPTY;
 		sockets_[index].send = EMPTY;
 		sockets_amount_--;
 	}
 
-	void SocketService::acceptConnection(int index)
-	{
+	void SocketService::acceptConnection(int index) {
 		SOCKET id = sockets_[index].id;
 		struct sockaddr_in from;		// Address of sending partner
 		int fromLen = sizeof(from);
