@@ -148,6 +148,8 @@ namespace mta_http_server {
     // The HTTP server sends an HTTP response to a client that include
     // an HTTP status code, headers, and (optional) content
     class HttpResponse : public HttpMessageInterface {
+    private:
+        HttpStatusCode status_code_;
     public:
         HttpResponse() : status_code_(HttpStatusCode::Ok) {}
         explicit HttpResponse(HttpStatusCode status_code) : status_code_(status_code) {}
@@ -159,9 +161,6 @@ namespace mta_http_server {
 
         friend std::string to_string(const HttpResponse& request, bool send_content);
         friend HttpResponse string_to_response(const std::string& response_string);
-
-    private:
-        HttpStatusCode status_code_;
     };
 
     // Utility functions to convert HTTP message objects to string and vice versa
