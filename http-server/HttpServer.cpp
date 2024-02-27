@@ -97,7 +97,7 @@ namespace mta_http_server {
 			return;
 		}
 
-		std::cout << "Server: Sent: " << bytesSent << "\\" << strlen(sockets_[index].buffer) << " bytes of \"" << sendBuff << "\" message.\n";
+		std::cout << "Server: Sent: " << bytesSent << "\\" << strlen(sockets_[index].buffer) << " bytes of \"" << sockets_[index].buffer << "\" message.\n";
 		sockets_[index].send = IDLE;
 	}
 

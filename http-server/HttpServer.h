@@ -55,11 +55,16 @@ namespace mta_http_server {
             const HttpRequestHandler_t& callback) {
             request_handlers_[uri].insert(std::make_pair(method, callback));
         }
+
+        HttpRequestHandler_t get_health = [](const HttpRequest& request) -> HttpResponse {
+            return HttpResponse(HttpStatusCode::Ok);
+        };
+
     public:
         const request_handlers_t& request_handlers() const { return request_handlers_; }
-        
-        //TODO: Not implemented
-        DefaultRequestHandlers() : request_handlers_(request_handlers_t()) {}
+        DefaultRequestHandlers() {
+            RegisterHttpRequestHandler("/health", HttpMethod::GET, get_health);
+        }
     };
 
     // A handler for server sockets
