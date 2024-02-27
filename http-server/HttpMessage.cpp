@@ -278,5 +278,4 @@ namespace mta_http_server {
 
     return {baseURI, params};
 }
-
 }
