@@ -38,6 +38,7 @@ namespace mta_http_server {
         SEND
     };
 
+    // A handler for server sockets
     class SocketService {
     private:
         sockaddr_in server_service_;

@@ -105,6 +105,8 @@ namespace mta_http_server {
         size_t content_length() const { return content_.length(); }
     };
 
+    // A QueryParams object represents the query params for a single HTTP request.
+    // By default, HTTP requests without query parameters will have an empty map.
     class QueryParams {
     protected:
         std::map<std::string, std::string> params_;
