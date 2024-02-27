@@ -21,7 +21,7 @@ namespace mta_http_server {
             return "POST";
         case HttpMethod::PUT:
             return "PUT";
-        case HttpMethod::DELETE:
+        case HttpMethod::DELETE_:
             return "DELETE";
         case HttpMethod::CONNECT:
             return "CONNECT";
@@ -102,7 +102,7 @@ namespace mta_http_server {
             return HttpMethod::PUT;
         }
         else if (method_string_uppercase == "DELETE") {
-            return HttpMethod::DELETE;
+            return HttpMethod::DELETE_;
         }
         else if (method_string_uppercase == "CONNECT") {
             return HttpMethod::CONNECT;

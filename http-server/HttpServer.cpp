@@ -144,7 +144,7 @@ namespace mta_http_server {
 	void HttpServer::Start() {
 		WSAData wsa_data;
 
-		if (!port)
+		if (!port())
 			throw std::runtime_error("Port is not configured!");
 
 		if (NO_ERROR != WSAStartup(MAKEWORD(2, 2), &wsa_data))

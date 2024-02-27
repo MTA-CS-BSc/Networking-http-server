@@ -1,5 +1,6 @@
 #ifndef HTTP_SERVER_H_
 #define HTTP_SERVER_H_
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include "Settings.h"
 #include <functional>
@@ -12,9 +13,11 @@
 #include <time.h>
 #include <vector>
 #include <iostream>
+//#include "DefaultHandlers.h"
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
+//using mta_http_server::DefaultHandlers;
 using mta_http_server::Settings;
 
 namespace mta_http_server {
@@ -30,6 +33,8 @@ namespace mta_http_server {
         char buffer[Settings::MAX_BUFFER_SIZE];
         int len;
     } SOCKET_STATE;
+
+    typedef std::map<Uri, std::map<HttpMethod, HttpRequestHandler_t>> request_handlers_t;
     
     enum SocketFunction {
         EMPTY,
@@ -70,16 +75,19 @@ namespace mta_http_server {
         const sockaddr_in& server_service() const { return server_service_; }
     };
 
+    // An HTTP Server class for sockets and requests management
 	class HttpServer {
     private:
         std::string host_;
         std::uint16_t port_;
         bool running_;
-        std::map<Uri, std::map<HttpMethod, HttpRequestHandler_t>> request_handlers_;
+        request_handlers_t request_handlers_;
         SocketService socket_service_;
 
     public:
         HttpServer() = default;
+        HttpServer(const HttpServer&) = default;
+        HttpServer(HttpServer&&) = default;
         explicit HttpServer(const std::string& host, std::uint16_t port) : 
             host_(host), port_(port), running_(false), request_handlers_(), socket_service_(SocketService()) { }
         HttpServer& operator=(HttpServer&&) = default;
@@ -91,6 +99,8 @@ namespace mta_http_server {
         void ProcessEvents();
 
         void SetPort(std::uint16_t port) { port_ = port; }
+        void SetRequestHandlers(const request_handlers_t& handlers) { request_handlers_ = handlers; }
+        //void SetRequestHandlers(DefaultHandlers&& default_handlers) { SetRequestHandlers(default_handlers.request_handlers()); }
 
         void RegisterHttpRequestHandler(const std::string& path, HttpMethod method,
             const HttpRequestHandler_t& callback) {
