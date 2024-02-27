@@ -1,6 +1,14 @@
 #include "HttpMessage.h"
 
 namespace mta_http_server {
+    std::string to_string(const std::vector<HttpMethod>& methods) {
+        return std::accumulate(methods.begin(), methods.end(),
+            std::string(),
+            [](const std::string& a, const HttpMethod& method) -> std::string {
+                return a + (a.length() > 0 ? ", " : "") + to_string(method);
+            });
+    }
+
     std::string to_string(HttpMethod method) {
         switch (method) {
         case HttpMethod::GET:

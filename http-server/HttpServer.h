@@ -10,8 +10,6 @@
 #include <functional>
 #include "HttpMessage.h"
 #include "Uri.h"
-#include <vector>
-#include <numeric>
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
@@ -116,7 +114,6 @@ namespace mta_http_server {
         request_handlers_t request_handlers_;
         SocketService socket_service_;
         HttpResponse handleOptionsRequest(const HttpRequest&);
-        std::string joinMethodsToString(const std::vector<HttpMethod>&);
         std::vector<HttpMethod> getMethodsForURI(const Uri&);
     public:
         HttpServer() = default;

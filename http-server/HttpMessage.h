@@ -7,6 +7,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <iomanip>
+#include <vector>
+#include <numeric>
 
 #include "Uri.h"
 
@@ -169,6 +171,7 @@ namespace mta_http_server {
     };
 
     // Utility functions to convert HTTP message objects to string and vice versa
+    std::string to_string(const std::vector<HttpMethod>& methods);
     std::string to_string(const HttpRequest& request);
     std::string to_string(const HttpResponse& response, bool send_content = true);
     HttpRequest string_to_request(const std::string& request_string);
