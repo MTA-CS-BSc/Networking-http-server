@@ -167,6 +167,18 @@ namespace mta_http_server {
 		return response;
 	}
 	
+	HttpResponse HttpServer::handleHeadRequest(const HttpRequest& request) {
+		HttpRequest c_request(request);
+		c_request.SetMethod(HttpMethod::GET);
+		
+		HttpResponse res = HandleHttpRequest(c_request);
+
+		if (res.status_code() == HttpStatusCode::Ok)
+			res.ClearContent();
+
+		return res;
+	}
+
 	HttpResponse HttpServer::HandleHttpRequest(const HttpRequest& request) {
 		auto it = request_handlers_.find(request.uri());
 		if (it == request_handlers_.end())  // this uri is not registered
@@ -177,10 +189,16 @@ namespace mta_http_server {
 		if (callback_it == it->second.end()) // no handler for this method
 			return HttpResponse(HttpStatusCode::MethodNotAllowed);
 
-		if (request.method() == HttpMethod::OPTIONS)
+		switch (request.method()) {
+		case HttpMethod::OPTIONS:
 			return handleOptionsRequest(request);
-
-		return callback_it->second(request);  // call handler to process the request
+		case HttpMethod::TRACE:
+			break;
+		case HttpMethod::HEAD:
+			return handleHeadRequest(request);
+		default:
+			return callback_it->second(request);
+		}
 	}
 
 	SOCKET_STATE* SocketService::findListeningSocket() {

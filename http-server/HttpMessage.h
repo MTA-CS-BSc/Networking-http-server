@@ -95,7 +95,7 @@ namespace mta_http_server {
             content_ = content;
             SetContentLength();
         }
-        void ClearContent(const std::string& content) {
+        void ClearContent() {
             content_.clear();
             SetContentLength();
         }
