@@ -88,42 +88,16 @@ namespace mta_http_server {
 
 	void SocketService::sendMessage(int index) {
 		int bytesSent = 0;
-		char sendBuff[255];
 
 		SOCKET msgSocket = sockets_[index].id;
-
-		//TODO: Implement what to send
-		//if (sockets[index].sendSubType == SEND_TIME)
-		//{
-		//	// Answer client's request by the current time string.
-
-		//	// Get the current time.
-		//	time_t timer;
-		//	time(&timer);
-		//	// Parse the current time to printable string.
-		//	strcpy(sendBuff, ctime(&timer));
-		//	sendBuff[strlen(sendBuff) - 1] = 0; //to remove the new-line from the created string
-		//}
-		//else if (sockets[index].sendSubType == SEND_SECONDS)
-		//{
-		//	// Answer client's request by the current time in seconds.
-
-		//	// Get the current time.
-		//	time_t timer;
-		//	time(&timer);
-		//	// Convert the number to string.
-		//	itoa((int)timer, sendBuff, 10);
-		//}
-
-		bytesSent = send(msgSocket, sendBuff, (int)strlen(sendBuff), 0);
+		bytesSent = send(msgSocket, sockets_[index].buffer, sockets_[index].len, 0);
 
 		if (SOCKET_ERROR == bytesSent) {
 			std::cout << "Time Server: Error at send(): " << WSAGetLastError() << std::endl;
 			return;
 		}
 
-		std::cout << "Time Server: Sent: " << bytesSent << "\\" << strlen(sendBuff) << " bytes of \"" << sendBuff << "\" message.\n";
-
+		std::cout << "Server: Sent: " << bytesSent << "\\" << strlen(sockets_[index].buffer) << " bytes of \"" << sendBuff << "\" message.\n";
 		sockets_[index].send = IDLE;
 	}
 
