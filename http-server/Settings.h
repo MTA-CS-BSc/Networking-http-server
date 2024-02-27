@@ -1,9 +1,6 @@
 #ifndef HTTP_SERVER_SETTINGS_H_
 #define HTTP_SERVER_SETTINGS_H_
 
-#include <string>
-#include <winsock2.h>
-
 namespace mta_http_server {
 	class Settings {
 	public:

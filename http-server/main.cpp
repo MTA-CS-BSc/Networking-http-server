@@ -1,13 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <cerrno>
-#include <chrono>
-#include <cstring>
-#include <iostream>
-#include <string>
-
 #include "HttpServer.h"
-#include "Uri.h"
 #include "Settings.h"
 
 using mta_http_server::HttpServer;
