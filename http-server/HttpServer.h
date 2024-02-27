@@ -13,7 +13,6 @@
 #include <time.h>
 #include <vector>
 #include <iostream>
-//#include "DefaultHandlers.h"
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
@@ -42,6 +41,24 @@ namespace mta_http_server {
         RECEIVE,
         IDLE,
         SEND
+    };
+
+    class DefaultHandlers {
+    private:
+        request_handlers_t request_handlers_;
+
+        void RegisterHttpRequestHandler(const std::string& path, HttpMethod method,
+            const HttpRequestHandler_t& callback) {
+            request_handlers_[Uri(path)].insert(std::make_pair(method, callback));
+        }
+
+        void RegisterHttpRequestHandler(const Uri& uri, HttpMethod method,
+            const HttpRequestHandler_t& callback) {
+            request_handlers_[uri].insert(std::make_pair(method, callback));
+        }
+    public:
+        const request_handlers_t& request_handlers() const { return request_handlers_; }
+        DefaultHandlers() : request_handlers_(request_handlers_t()) {} //TODO: Not implemented
     };
 
     // A handler for server sockets
@@ -100,7 +117,7 @@ namespace mta_http_server {
 
         void SetPort(std::uint16_t port) { port_ = port; }
         void SetRequestHandlers(const request_handlers_t& handlers) { request_handlers_ = handlers; }
-        //void SetRequestHandlers(DefaultHandlers&& default_handlers) { SetRequestHandlers(default_handlers.request_handlers()); }
+        void SetRequestHandlers(DefaultHandlers&& default_handlers) { SetRequestHandlers(default_handlers.request_handlers()); }
 
         void RegisterHttpRequestHandler(const std::string& path, HttpMethod method,
             const HttpRequestHandler_t& callback) {
