@@ -54,6 +54,18 @@ namespace mta_http_server {
             request_handlers_[uri].insert(std::make_pair(method, callback));
         }
 
+        HttpRequestHandler_t dummy_handler = [](const HttpRequest& request) -> HttpResponse {
+            return HttpResponse();
+            };
+
+        void RegisterOptions(const Uri& uri) {
+            request_handlers_[uri].insert(std::make_pair(HttpMethod::OPTIONS, dummy_handler));
+        }
+
+        void RegisterOptions(const std::string& path) {
+            request_handlers_[Uri(path)].insert(std::make_pair(HttpMethod::OPTIONS, dummy_handler));
+        }
+
         HttpRequestHandler_t get_health = [](const HttpRequest& request) -> HttpResponse {
             HttpResponse response = HttpResponse(HttpStatusCode::Ok);
 
@@ -67,6 +79,7 @@ namespace mta_http_server {
         const request_handlers_t& request_handlers() const { return request_handlers_; }
         DefaultRequestHandlers() {
             RegisterHttpRequestHandler("/health", HttpMethod::GET, get_health);
+            RegisterOptions("/health");
         }
     };
 
