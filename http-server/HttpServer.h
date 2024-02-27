@@ -16,7 +16,6 @@
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
-//using mta_http_server::DefaultHandlers;
 using mta_http_server::Settings;
 
 namespace mta_http_server {
@@ -43,7 +42,8 @@ namespace mta_http_server {
         SEND
     };
 
-    class DefaultHandlers {
+    // Default request handlers
+    class DefaultRequestHandlers {
     private:
         request_handlers_t request_handlers_;
 
@@ -58,7 +58,7 @@ namespace mta_http_server {
         }
     public:
         const request_handlers_t& request_handlers() const { return request_handlers_; }
-        DefaultHandlers() : request_handlers_(request_handlers_t()) {} //TODO: Not implemented
+        DefaultRequestHandlers() : request_handlers_(request_handlers_t()) {} //TODO: Not implemented
     };
 
     // A handler for server sockets
@@ -117,7 +117,7 @@ namespace mta_http_server {
 
         void SetPort(std::uint16_t port) { port_ = port; }
         void SetRequestHandlers(const request_handlers_t& handlers) { request_handlers_ = handlers; }
-        void SetRequestHandlers(DefaultHandlers&& default_handlers) { SetRequestHandlers(default_handlers.request_handlers()); }
+        void SetRequestHandlers(DefaultRequestHandlers&& default_handlers) { SetRequestHandlers(default_handlers.request_handlers()); }
 
         void RegisterHttpRequestHandler(const std::string& path, HttpMethod method,
             const HttpRequestHandler_t& callback) {
