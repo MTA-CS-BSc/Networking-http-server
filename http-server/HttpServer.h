@@ -55,7 +55,12 @@ namespace mta_http_server {
         }
 
         HttpRequestHandler_t get_health = [](const HttpRequest& request) -> HttpResponse {
-            return HttpResponse(HttpStatusCode::Ok);
+            HttpResponse response = HttpResponse(HttpStatusCode::Ok);
+
+            response.SetHeader("Content-Type", "text/plain");
+            response.SetContent("OK");
+
+            return response;
         };
 
     public:
@@ -108,6 +113,7 @@ namespace mta_http_server {
         bool running_;
         request_handlers_t request_handlers_;
         SocketService socket_service_;
+        HttpResponse handleOptionsRequest(const HttpRequest&);
 
     public:
         HttpServer() = default;
