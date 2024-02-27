@@ -21,6 +21,7 @@ namespace mta_http_server {
     // A request handler should expect a request as argument and returns a response
     using HttpRequestHandler_t = std::function<HttpResponse(const HttpRequest&)>;
 
+    // Defines a state of a socket as was shown in class
     typedef struct socket_state_t {
         SOCKET id;			// Socket handle
         int	recv;			// Receiving?
@@ -29,7 +30,7 @@ namespace mta_http_server {
         char buffer[Settings::MAX_BUFFER_SIZE];
         int len;
     } SOCKET_STATE;
-
+    
     enum SocketFunction {
         EMPTY,
         LISTEN,
