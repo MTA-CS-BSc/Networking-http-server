@@ -171,12 +171,19 @@ namespace mta_http_server {
 		HttpRequest c_request(request);
 		c_request.SetMethod(HttpMethod::GET);
 		
-		HttpResponse res = HandleHttpRequest(c_request);
+		HttpResponse respone = HandleHttpRequest(c_request);
 
-		if (res.status_code() == HttpStatusCode::Ok)
-			res.ClearContent();
+		if (respone.status_code() == HttpStatusCode::Ok)
+			respone.ClearContent();
 
-		return res;
+		return respone;
+	}
+
+	HttpResponse HttpServer::handleTraceRequest(const HttpRequest& request) {
+		HttpResponse response = HttpResponse(HttpStatusCode::Ok);
+		response.SetHeader("Content-Type", "message/http");
+		response.SetContent(to_string(request));
+		return response;
 	}
 
 	HttpResponse HttpServer::HandleHttpRequest(const HttpRequest& request) {
@@ -193,7 +200,7 @@ namespace mta_http_server {
 		case HttpMethod::OPTIONS:
 			return handleOptionsRequest(request);
 		case HttpMethod::TRACE:
-			break;
+			return handleTraceRequest(request);
 		case HttpMethod::HEAD:
 			return handleHeadRequest(request);
 		default:

@@ -43,27 +43,31 @@ namespace mta_http_server {
     class DefaultRequestHandlers {
     private:
         request_handlers_t request_handlers_;
+        
+        void RegisterHttpRequestHandler(const Uri& uri, HttpMethod method,
+            const HttpRequestHandler_t& callback) {
+            if (method == HttpMethod::TRACE ||
+                method == HttpMethod::OPTIONS ||
+                method == HttpMethod::HEAD)
+                throw std::logic_error("Can't assign to functions with default behaviour");
+
+            request_handlers_[uri].insert(std::make_pair(method, callback));
+        }
 
         void RegisterHttpRequestHandler(const std::string& path, HttpMethod method,
             const HttpRequestHandler_t& callback) {
-            request_handlers_[Uri(path)].insert(std::make_pair(method, callback));
-        }
-
-        void RegisterHttpRequestHandler(const Uri& uri, HttpMethod method,
-            const HttpRequestHandler_t& callback) {
-            request_handlers_[uri].insert(std::make_pair(method, callback));
+            RegisterHttpRequestHandler(Uri(path), method, callback);
         }
 
         HttpRequestHandler_t dummy_handler = [](const HttpRequest& request) -> HttpResponse {
             return HttpResponse();
-            };
+        };
 
         void RegisterDummy(const Uri& uri, HttpMethod method) {
             request_handlers_[uri].insert(std::make_pair(method, dummy_handler));
         }
-
         void RegisterDummy(const std::string& path, HttpMethod method) {
-            request_handlers_[Uri(path)].insert(std::make_pair(method, dummy_handler));
+            RegisterDummy(Uri(path), method);
         }
 
         HttpRequestHandler_t get_health = [](const HttpRequest& request) -> HttpResponse {
@@ -80,6 +84,7 @@ namespace mta_http_server {
         DefaultRequestHandlers() {
             RegisterHttpRequestHandler("/health", HttpMethod::GET, get_health);
             RegisterDummy("/health", HttpMethod::HEAD);
+            RegisterDummy("/health", HttpMethod::TRACE);
             RegisterDummy("/health", HttpMethod::OPTIONS);
         }
     };
@@ -129,6 +134,7 @@ namespace mta_http_server {
         SocketService socket_service_;
         HttpResponse handleOptionsRequest(const HttpRequest&);
         HttpResponse handleHeadRequest(const HttpRequest&);
+        HttpResponse handleTraceRequest(const HttpRequest&);
         std::vector<HttpMethod> getMethodsForURI(const Uri&);
     public:
         HttpServer() = default;
