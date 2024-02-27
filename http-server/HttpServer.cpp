@@ -82,7 +82,9 @@ namespace mta_http_server {
 			// Copy response data to corresponding buffer
 			sockets_[index].recv = EMPTY;
 			sockets_[index].send = SEND;
-			memcpy(sockets_[index].buffer, string_response.c_str(), string_response.size());
+
+			std::fill(std::begin(sockets_[index].buffer), std::end(sockets_[index].buffer), '\0');
+			memcpy(sockets_[index].buffer, string_response.c_str(), string_response.length());
 		}
 	}
 
@@ -90,7 +92,7 @@ namespace mta_http_server {
 		int bytesSent = 0;
 
 		SOCKET msgSocket = sockets_[index].id;
-		bytesSent = send(msgSocket, sockets_[index].buffer, sockets_[index].len, 0);
+		bytesSent = send(msgSocket, sockets_[index].buffer, strlen(sockets_[index].buffer), 0);
 
 		if (SOCKET_ERROR == bytesSent) {
 			std::cout << "Time Server: Error at send(): " << WSAGetLastError() << std::endl;

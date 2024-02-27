@@ -9,6 +9,7 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <iomanip>
 
 namespace mta_http_server {
     std::string to_string(HttpMethod method) {
@@ -158,6 +159,19 @@ namespace mta_http_server {
         return oss.str();
     }
 
+    std::string get_timestamp_for_response() {
+        // Get the current time
+        auto current_time = std::time(nullptr);
+        // Convert to tm struct in GMT
+        std::tm gm_time;
+        std::ostringstream timestamp;
+
+        gmtime_s(&gm_time, &current_time);
+        timestamp << std::put_time(&gm_time, "%a, %d %b %Y %H:%M:%S GMT");
+
+        return timestamp.str();
+    }
+
     std::string to_string(const HttpResponse& response, bool send_content) {
         std::ostringstream oss;
 
@@ -166,6 +180,9 @@ namespace mta_http_server {
         oss << to_string(response.status_code()) << "\r\n";
         for (const auto& p : response.headers())
             oss << p.first << ": " << p.second << "\r\n";
+
+        oss << "Date: " << get_timestamp_for_response() << "\r\n";
+
         oss << "\r\n";
         if (send_content) oss << response.content();
 

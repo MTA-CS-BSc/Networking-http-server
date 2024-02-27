@@ -78,7 +78,7 @@ namespace mta_http_server {
         }
 
     public:
-        HttpMessageInterface() : version_(HttpVersion::HTTP_1_1) {}
+        HttpMessageInterface() : version_(HttpVersion::HTTP_1_1) { SetContentLength(); }
         virtual ~HttpMessageInterface() = default;
 
         void SetHeader(const std::string& key, const std::string& value) {
@@ -153,8 +153,8 @@ namespace mta_http_server {
     private:
         HttpStatusCode status_code_;
     public:
-        HttpResponse() : status_code_(HttpStatusCode::Ok) {}
-        explicit HttpResponse(HttpStatusCode status_code) : status_code_(status_code) {}
+        HttpResponse() : status_code_(HttpStatusCode::Ok) { SetHeader("Server", "Apache/2.4.41 (Unix)"); }
+        explicit HttpResponse(HttpStatusCode status_code) : status_code_(status_code) { SetHeader("Server", "Apache/2.4.41 (Unix)"); }
         ~HttpResponse() override = default;
 
         void SetStatusCode(HttpStatusCode status_code) { status_code_ = status_code; }
@@ -171,5 +171,6 @@ namespace mta_http_server {
     HttpRequest string_to_request(const std::string& request_string);
     HttpResponse string_to_response(const std::string& response_string);
     std::pair<std::string, std::map<std::string, std::string>> parseURI(const std::string& uri);
+    std::string get_timestamp_for_response();
 }
 #endif  // HTTP_MESSAGE_H_
