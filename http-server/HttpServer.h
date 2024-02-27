@@ -30,12 +30,28 @@ namespace mta_http_server {
         int len;
     } SOCKET_STATE;
 
-    enum SOCK_FUNC {
+    enum SocketFunction {
         EMPTY,
         LISTEN,
         RECEIVE,
         IDLE,
         SEND
+    };
+
+    class SocketService {
+    private:
+        sockaddr_in server_service_;
+        std::vector<SOCKET_STATE> sockets_;
+        int sockets_amount_;
+    public:
+        SocketService() : server_service_(), sockets_(std::vector<SOCKET_STATE>()), sockets_amount_(0) {}
+        ~SocketService() = default;
+        SOCKET_STATE* findListeningSocket();
+        bool addSocket(SOCKET id, SocketFunction what);
+        void removeSocket(int index);
+        void acceptConnection(int index);
+        void receiveMessage(int index);
+        void sendMessage(int index);
     };
 
 	class HttpServer {
@@ -44,21 +60,13 @@ namespace mta_http_server {
         std::uint16_t port_;
         bool running_;
         std::map<Uri, std::map<HttpMethod, HttpRequestHandler_t>> request_handlers_;
-        sockaddr_in server_service_;
-        std::vector<SOCKET_STATE> sockets_;
-        int sockets_amount_;
-        SOCKET_STATE* findListeningSocket();
-        bool addSocket(SOCKET id, int what);
-        void removeSocket(int index);
-        void acceptConnection(int index);
-        void receiveMessage(int index);
-        void sendMessage(int index);
+        SocketService socket_service_;
 
     public:
         HttpServer() = default;
         explicit HttpServer(const std::string& host, std::uint16_t port) : 
-            host_(host), port_(port), running_(false), sockets_amount_(0),
-            request_handlers_(), server_service_(), sockets_(std::vector<SOCKET_STATE>()) { }
+            host_(host), port_(port), running_(false),
+            request_handlers_(), socket_service_(SocketService()) { }
         HttpServer(HttpServer&&) = default;
         HttpServer& operator=(HttpServer&&) = default;
         ~HttpServer() = default;

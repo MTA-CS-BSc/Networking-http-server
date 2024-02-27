@@ -41,8 +41,7 @@ namespace mta_http_server {
 			throw std::runtime_error("Time Server: Error at listen(): " + last_err);
 		}
 
-		// TODO: Add missing function
-		addSocket(listen_socket, LISTEN);
+		socket_service_.addSocket(listen_socket, LISTEN);
 		running_ = true;
 	}
 
@@ -59,9 +58,9 @@ namespace mta_http_server {
 		return callback_it->second(request);  // call handler to process the request
 	}
 
-	SOCKET_STATE* HttpServer::findListeningSocket() {
+	SOCKET_STATE* SocketService::findListeningSocket() {
 		for (auto& item : sockets_) {
-			if (item.recv == SOCK_FUNC::LISTEN)
+			if (item.recv == SocketFunction::LISTEN)
 				return &item;
 		}
 
@@ -73,16 +72,16 @@ namespace mta_http_server {
 			//TODO: Not implemented
 		}
 
-		closesocket(findListeningSocket()->id);
+		closesocket(socket_service_.findListeningSocket()->id);
 		WSACleanup();
 	}
 
-	bool HttpServer::addSocket(SOCKET id, int what) {
+	bool SocketService::addSocket(SOCKET id, SocketFunction what) {
 		for (int i = 0; i < Settings::MAX_SOCKETS; i++) {
-			if (sockets_[i].recv == SOCK_FUNC::EMPTY) {
+			if (sockets_[i].recv == SocketFunction::EMPTY) {
 				sockets_[i].id = id;
 				sockets_[i].recv = what;
-				sockets_[i].send = SOCK_FUNC::IDLE;
+				sockets_[i].send = SocketFunction::IDLE;
 				sockets_[i].len = 0;
 				sockets_amount_++;
 				return true;
@@ -91,14 +90,14 @@ namespace mta_http_server {
 		return false;
 	}
 
-	void HttpServer::removeSocket(int index)
+	void SocketService::removeSocket(int index)
 	{
 		sockets_[index].recv = EMPTY;
 		sockets_[index].send = EMPTY;
 		sockets_amount_--;
 	}
 
-	void HttpServer::acceptConnection(int index)
+	void SocketService::acceptConnection(int index)
 	{
 		SOCKET id = sockets_[index].id;
 		struct sockaddr_in from;		// Address of sending partner
@@ -123,7 +122,7 @@ namespace mta_http_server {
 		return;
 	}
 
-	void HttpServer::receiveMessage(int index) {
+	void SocketService::receiveMessage(int index) {
 		SOCKET msgSocket = sockets_[index].id;
 
 		int len = sockets_[index].len;
@@ -178,7 +177,7 @@ namespace mta_http_server {
 
 	}
 
-	void HttpServer::sendMessage(int index) {
+	void SocketService::sendMessage(int index) {
 		int bytesSent = 0;
 		char sendBuff[255];
 
