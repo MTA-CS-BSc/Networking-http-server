@@ -10,7 +10,7 @@ namespace mta_http_server {
         HttpResponse response = HttpResponse(HttpStatusCode::Ok);
         response.SetHeader("Content-Type", "text/html");
 
-        std::string file_path, line_to_insert;
+        std::string file_path, line_to_insert = "-";
         QLanguage lang_param = QLanguage::EN;
 
         auto it = request.params().find("lng");
@@ -20,28 +20,19 @@ namespace mta_http_server {
 
         std::string placeholder = SingletonHtmlPlaceholder::getInstance().get();
 
+        if (!placeholder.empty())
+            line_to_insert = placeholder;
+
         switch (lang_param) {
         case QLanguage::HE:
             file_path = "./index-he.html";
-            if (placeholder.empty())
-                line_to_insert = "הממ... לא נראה שיש כאן משהו";
-            else
-                line_to_insert = "מישהו מוסר: " + placeholder;
             break;
         case QLanguage::FR:
             file_path = "./index-fr.html";
-            if (placeholder.empty())
-                line_to_insert = "Il ne semble pas y avoir quelque chose ici...";
-            else
-                line_to_insert = "Quelqu'un a laissé un message: " + placeholder;
             break;
         case QLanguage::EN:
         default:
             file_path = "./index.html";
-            if (placeholder.empty())
-                line_to_insert = "Hmm... It doesn't look like there's something here";
-            else
-                line_to_insert = "Someone left a message: " + placeholder;
             break;
         }
         
