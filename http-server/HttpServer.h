@@ -10,6 +10,7 @@
 #include <functional>
 #include "HttpMessage.h"
 #include "Uri.h"
+#include <fstream>
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
@@ -131,18 +132,21 @@ namespace mta_http_server {
         bool running_;
         request_handlers_t request_handlers_;
         SocketService socket_service_;
+        std::string html_placeholder_;
+
+        // Default head, trace, options
         HttpResponse handleOptionsRequest(const HttpRequest&);
         HttpResponse handleHeadRequest(const HttpRequest&);
         std::vector<HttpMethod> getMethodsForURI(const Uri&);
         HttpResponse handleTraceRequest(const HttpRequest&);
-    public:
+    public:        
         HttpServer() = default;
         HttpServer(const HttpServer&) = default;
         HttpServer(HttpServer&&) = default;
-        
+
         explicit HttpServer(const std::string& host, std::uint16_t port) : 
-            host_(host), port_(port), running_(false),
-            request_handlers_(), socket_service_(SocketService(this)) { }
+            host_(host), port_(port), running_(false), html_placeholder_("Guest"),
+            request_handlers_(DefaultRequestHandlers().request_handlers()), socket_service_(SocketService(this)) { }
 
         HttpServer& operator=(HttpServer&&) = default;
         ~HttpServer() = default;
@@ -153,9 +157,7 @@ namespace mta_http_server {
         void ProcessEvents();
 
         void SetPort(std::uint16_t port) { port_ = port; }
-        void SetRequestHandlers(const request_handlers_t& handlers) { request_handlers_ = handlers; }
-        void SetRequestHandlers(DefaultRequestHandlers&& default_handlers) { SetRequestHandlers(default_handlers.request_handlers()); }
-
+        
         void RegisterHttpRequestHandler(const std::string& path, HttpMethod method,
             const HttpRequestHandler_t& callback) {
             request_handlers_[Uri(path)].insert(std::make_pair(method, callback));
