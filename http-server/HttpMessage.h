@@ -19,7 +19,7 @@ namespace mta_http_server {
         HEAD,
         POST,
         PUT,
-        DELETE_,
+        DEL,
         CONNECT,
         OPTIONS,
         TRACE,

@@ -43,7 +43,7 @@ namespace mta_http_server {
     void RegisterMTAHandlers(HttpServer& server) {
         server.RegisterHttpRequestHandler("/index.html", HttpMethod::POST, handlePostHtml);
         server.RegisterHttpRequestHandler("/index.html", HttpMethod::GET, handleGetHtml);
-        server.RegisterHttpRequestHandler("/index.html", HttpMethod::DELETE_, handleRemovePlaceholder);
+        server.RegisterHttpRequestHandler("/index.html", HttpMethod::DEL, handleRemovePlaceholder);
         server.RegisterHttpRequestHandler("/index.html", HttpMethod::PUT, handlePutPlaceholder);
     }
 }

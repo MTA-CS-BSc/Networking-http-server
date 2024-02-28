@@ -67,7 +67,7 @@ namespace mta_http_server {
 		else {
 			// Get message from socket
 			sockets_[index].buffer[len + bytesRecv] = '\0'; //add the null-terminating to make it a string
-			std::cout << "Server: Recieved: " << bytesRecv << " bytes of \"" << &sockets_[index].buffer[len] << "\" message.\n";
+			std::cout << "Server: Recieved: " << bytesRecv << " bytes of \"" << &sockets_[index].buffer[len] << "\" message.\n\n";
 			sockets_[index].len += bytesRecv;
 
 			// Convert to HttpRequest
@@ -99,7 +99,7 @@ namespace mta_http_server {
 			return;
 		}
 
-		std::cout << "Server: Sent: " << bytesSent << "\\" << strlen(sockets_[index].buffer) << " bytes of \"" << sockets_[index].buffer << "\" message.\n";
+		std::cout << "Server: Sent: " << bytesSent << "\\" << strlen(sockets_[index].buffer) << " bytes of \"" << sockets_[index].buffer << "\" message.\n\n";
 		sockets_[index].send = IDLE;
 	}
 
