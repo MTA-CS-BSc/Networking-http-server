@@ -14,6 +14,9 @@
 #include "Uri.h"
 
 namespace mta_http_server {
+    typedef std::map<std::string, std::string> query_params_t;
+    typedef std::map<std::string, std::string> headers_t;
+
     enum class HttpMethod {
         GET,
         HEAD,
@@ -63,12 +66,19 @@ namespace mta_http_server {
         HttpVersionNotSupported = 505
     };
 
+    enum QLanguage {
+        HE,
+        EN,
+        FR
+    };
+
     // Utility functions to convert between string or integer to enum classes
     std::string to_string(HttpMethod method);
     std::string to_string(HttpVersion version);
     std::string to_string(HttpStatusCode status_code);
     HttpMethod string_to_method(const std::string& method_string);
     HttpVersion string_to_version(const std::string& version_string);
+    QLanguage string_to_language(const std::string& lang_string);
 
     // Defines the common interface of an HTTP request and HTTP response.
     // Each message will have an HTTP version, collection of header fields,
@@ -76,7 +86,7 @@ namespace mta_http_server {
     class HttpMessageInterface {
     protected:
         HttpVersion version_;
-        std::map<std::string, std::string> headers_;
+        headers_t headers_;
         std::string content_;
 
         void SetContentLength() {
@@ -106,7 +116,7 @@ namespace mta_http_server {
             if (headers_.count(key) > 0) return headers_.at(key);
             return {};
         }
-        std::map<std::string, std::string> headers() const { return headers_; }
+        headers_t headers() const { return headers_; }
         std::string content() const { return content_; }
         size_t content_length() const { return content_.length(); }
     };
@@ -115,17 +125,17 @@ namespace mta_http_server {
     // By default, HTTP requests without query parameters will have an empty map.
     class QueryParams {
     protected:
-        std::map<std::string, std::string> params_;
+        query_params_t params_;
     public:
         QueryParams() : params_() { }
-        QueryParams(const std::map<std::string, std::string> params) : params_(params) { }
+        QueryParams(const query_params_t params) : params_(params) { }
         ~QueryParams() = default;
         void SetParam(const std::string& key, const std::string& value) {
             params_[key] = value;
         }
         void RemoveParam(const std::string& key) { params_.erase(key); }
         void ClearParams() { params_.clear(); }
-        std::map<std::string, std::string> params() const { return params_; }
+        query_params_t params() const { return params_; }
     };
 
     // An HttpRequest object represents a single HTTP request
@@ -144,7 +154,7 @@ namespace mta_http_server {
         void SetUri(const Uri& uri) { uri_ = uri; }
         void SetQueryParams(const QueryParams& params) { params_ = params; }
 
-        QueryParams params() const { return params_.params(); }
+        query_params_t params() const { return params_.params(); }
         HttpMethod method() const { return method_; }
         Uri uri() const { return uri_; }
 
@@ -178,9 +188,10 @@ namespace mta_http_server {
     std::string to_string(const HttpResponse& response, bool send_content = true);
     HttpRequest string_to_request(const std::string& request_string);
     HttpResponse string_to_response(const std::string& response_string);
-    std::pair<std::string, std::map<std::string, std::string>> parseURI(const std::string&);
+    std::pair<std::string, query_params_t> parseURI(const std::string&);
     std::string get_timestamp_for_response();
     std::string string_replace(const std::string& str, const std::string& replace_from, const std::string& replace_to);
     std::string read_html_file(const std::string&);
+    std::string transform(const std::string& str, const char& method);
 }
 #endif  // HTTP_MESSAGE_H_

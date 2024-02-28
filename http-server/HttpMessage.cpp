@@ -106,11 +106,18 @@ namespace mta_http_server {
         }
     }
 
+    std::string transform(const std::string& str, const char& method) {
+        std::string transformed;
+        std::transform(str.begin(), str.end(),
+            std::back_inserter(transformed),
+            [method](char c) { return method == 'u' ? toupper(c) : tolower(c); });
+
+        return transformed;
+    }
+
     HttpMethod string_to_method(const std::string& method_string) {
-        std::string method_string_uppercase;
-        std::transform(method_string.begin(), method_string.end(),
-            std::back_inserter(method_string_uppercase),
-            [](char c) { return toupper(c); });
+        std::string method_string_uppercase = transform(method_string, 'u');
+
         if (method_string_uppercase == "GET") {
             return HttpMethod::GET;
         }
@@ -144,26 +151,31 @@ namespace mta_http_server {
     }
 
     HttpVersion string_to_version(const std::string& version_string) {
-        std::string version_string_uppercase;
-        std::transform(version_string.begin(), version_string.end(),
-            std::back_inserter(version_string_uppercase),
-            [](char c) { return toupper(c); });
-        if (version_string_uppercase == "HTTP/0.9") {
+        std::string version_string_uppercase = transform(version_string, 'u');
+
+        if (version_string_uppercase == "HTTP/0.9")
             return HttpVersion::HTTP_0_9;
-        }
-        else if (version_string_uppercase == "HTTP/1.0") {
+        else if (version_string_uppercase == "HTTP/1.0")
             return HttpVersion::HTTP_1_0;
-        }
-        else if (version_string_uppercase == "HTTP/1.1") {
+        else if (version_string_uppercase == "HTTP/1.1")
             return HttpVersion::HTTP_1_1;
-        }
-        else if (version_string_uppercase == "HTTP/2" ||
-            version_string_uppercase == "HTTP/2.0") {
+        else if (version_string_uppercase == "HTTP/2" || version_string_uppercase == "HTTP/2.0")
             return HttpVersion::HTTP_2_0;
-        }
-        else {
+        else
             throw std::invalid_argument("Unexpected HTTP version");
-        }
+    }
+
+    QLanguage string_to_language(const std::string& lang_string) {
+        std::string lang_lower_case = transform(lang_string, 'l');
+
+        if (lang_string == "he")
+            return QLanguage::HE;
+        else if (lang_string == "en")
+            return QLanguage::EN;
+        else if (lang_string == "fr")
+            return QLanguage::FR;
+        else
+            throw std::invalid_argument("Unexpected lang param");
     }
 
     std::string to_string(const HttpRequest& request) {
@@ -244,7 +256,7 @@ namespace mta_http_server {
         }
         request.SetMethod(string_to_method(method));
 
-        std::pair<std::string, std::map<std::string, std::string>> parsed_path = parseURI(path);
+        std::pair<std::string, query_params_t> parsed_path = parseURI(path);
         
         request.SetUri(Uri(parsed_path.first));
         request.SetQueryParams(QueryParams(parsed_path.second));
@@ -279,9 +291,9 @@ namespace mta_http_server {
         throw std::logic_error("Method not implemented");
     }
 
-    std::pair<std::string, std::map<std::string, std::string>> parseURI(const std::string& uri) {
+    std::pair<std::string, query_params_t> parseURI(const std::string& uri) {
     std::string baseURI;
-    std::map<std::string, std::string> params;
+    query_params_t params;
 
     // Finding the position of '?' to separate base URI and query parameters
     std::size_t queryPos = uri.find('?');

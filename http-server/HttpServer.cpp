@@ -71,6 +71,7 @@ namespace mta_http_server {
 			sockets_[index].len += bytesRecv;
 
 			// Convert to HttpRequest
+			//TODO: Add try/catch
 			HttpRequest request = string_to_request(sockets_[index].buffer);
 
 			// Handle request

@@ -9,7 +9,32 @@ namespace mta_http_server {
     HttpRequestHandler_t handleGetHtml = [](const HttpRequest& request) -> HttpResponse {
         HttpResponse response = HttpResponse(HttpStatusCode::Ok);
         response.SetHeader("Content-Type", "text/html");
-        response.SetContent(string_replace(read_html_file(std::string(".") + to_string(request.uri())), "${FILL_DATA_HERE}", SingletonHtmlPlaceholder::getInstance().get()));
+
+        auto it = request.params().find("lng");
+
+        // Default is English
+        if (it == request.params().end())
+            response.SetContent(string_replace(read_html_file(std::string(".") + to_string(request.uri())), "${FILL_DATA_HERE}", SingletonHtmlPlaceholder::getInstance().get()));
+
+        else {
+            std::string file_path;
+            // Add try/catch
+            QLanguage lang_param = string_to_language(it->second);
+
+            switch (lang_param) {
+                case HE:
+                    file_path = "./index-he.html";
+                    break;
+                case FR:
+                    file_path = "./index-fr.html";
+                    break;
+                case EN:
+                    file_path = "./index.html";
+                default:
+                    break;
+            }
+        }
+        
         return response;
     };
 
