@@ -10,31 +10,29 @@ namespace mta_http_server {
         HttpResponse response = HttpResponse(HttpStatusCode::Ok);
         response.SetHeader("Content-Type", "text/html");
 
+        std::string file_path, line_to_insert;
+        QLanguage lang_param = QLanguage::EN;
+
         auto it = request.params().find("lng");
 
-        // Default is English
-        if (it == request.params().end())
-            response.SetContent(string_replace(read_html_file(std::string(".") + to_string(request.uri())), "${FILL_DATA_HERE}", SingletonHtmlPlaceholder::getInstance().get()));
-
-        else {
-            std::string file_path;
+        if (it != request.params().end())
             // Add try/catch
-            QLanguage lang_param = string_to_language(it->second);
+            lang_param = string_to_language(it->second);
 
-            switch (lang_param) {
-                case HE:
-                    file_path = "./index-he.html";
-                    break;
-                case FR:
-                    file_path = "./index-fr.html";
-                    break;
-                case EN:
-                    file_path = "./index.html";
-                default:
-                    break;
-            }
+        switch (lang_param) {
+        case QLanguage::HE:
+            file_path = "./index-he.html";
+            break;
+        case QLanguage::FR:
+            file_path = "./index-fr.html";
+            break;
+        case QLanguage::EN:
+        default:
+            file_path = "./index.html";
+            break;
         }
         
+        response.SetContent(string_replace(read_html_file(file_path), "${FILL_DATA_HERE}", line_to_insert));
         return response;
     };
 

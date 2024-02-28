@@ -128,14 +128,14 @@ namespace mta_http_server {
         query_params_t params_;
     public:
         QueryParams() : params_() { }
-        QueryParams(const query_params_t params) : params_(params) { }
+        QueryParams(const query_params_t& params) : params_(params) { }
         ~QueryParams() = default;
         void SetParam(const std::string& key, const std::string& value) {
             params_[key] = value;
         }
         void RemoveParam(const std::string& key) { params_.erase(key); }
         void ClearParams() { params_.clear(); }
-        query_params_t params() const { return params_; }
+        const query_params_t& params() const { return params_; }
     };
 
     // An HttpRequest object represents a single HTTP request
@@ -154,7 +154,7 @@ namespace mta_http_server {
         void SetUri(const Uri& uri) { uri_ = uri; }
         void SetQueryParams(const QueryParams& params) { params_ = params; }
 
-        query_params_t params() const { return params_.params(); }
+        const query_params_t& params() const { return params_.params(); }
         HttpMethod method() const { return method_; }
         Uri uri() const { return uri_; }
 
