@@ -1,12 +1,36 @@
 #include "HttpMessage.h"
 
 namespace mta_http_server {
+    std::string string_replace(const std::string& str, const std::string& replace_from, const std::string& replace_to) {
+        std::string c_str(str);
+
+        size_t pos = c_str.find(replace_from);
+        if (pos != std::string::npos)
+            c_str.replace(pos, replace_from.length(), replace_to);
+
+        return c_str;
+    }
+
+    std::string read_html_file(const std::string& path) {
+        std::ifstream file(path);
+
+        if (!file.is_open())
+            throw std::runtime_error("Could not open file!");
+
+        std::string htmlContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        return htmlContent;
+    }
+
     std::string to_string(const std::vector<HttpMethod>& methods) {
         return std::accumulate(methods.begin(), methods.end(),
             std::string(),
             [](const std::string& a, const HttpMethod& method) -> std::string {
                 return a + (a.length() > 0 ? ", " : "") + to_string(method);
             });
+    }
+
+    std::string to_string(const Uri& uri) {
+        return uri.path();
     }
 
     std::string to_string(HttpMethod method) {

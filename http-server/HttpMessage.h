@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <vector>
 #include <numeric>
+#include <fstream>
 
 #include "Uri.h"
 
@@ -172,11 +173,14 @@ namespace mta_http_server {
 
     // Utility functions to convert HTTP message objects to string and vice versa
     std::string to_string(const std::vector<HttpMethod>& methods);
+    std::string to_string(const Uri&);
     std::string to_string(const HttpRequest& request);
     std::string to_string(const HttpResponse& response, bool send_content = true);
     HttpRequest string_to_request(const std::string& request_string);
     HttpResponse string_to_response(const std::string& response_string);
-    std::pair<std::string, std::map<std::string, std::string>> parseURI(const std::string& uri);
+    std::pair<std::string, std::map<std::string, std::string>> parseURI(const std::string&);
     std::string get_timestamp_for_response();
+    std::string string_replace(const std::string& str, const std::string& replace_from, const std::string& replace_to);
+    std::string read_html_file(const std::string&);
 }
 #endif  // HTTP_MESSAGE_H_

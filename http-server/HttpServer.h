@@ -10,7 +10,6 @@
 #include <functional>
 #include "HttpMessage.h"
 #include "Uri.h"
-#include <fstream>
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
@@ -140,36 +139,10 @@ namespace mta_http_server {
         std::vector<HttpMethod> getMethodsForURI(const Uri&);
         HttpResponse handleTraceRequest(const HttpRequest&);
 
-        // Other request handlers
-        std::string string_replace(const std::string& str, const std::string& replace_from, const std::string& replace_to) {
-            std::string c_str(str);
-
-            size_t pos = c_str.find(replace_from);
-            if (pos != std::string::npos)
-                c_str.replace(pos, replace_from.length(), replace_to);
-            
-            return c_str;
-        }
-
-        std::string read_html_file(const std::string& path) {
-            std::ifstream file(path);
-
-            if (!file.is_open())
-                throw std::runtime_error("Could not open file!");
-
-            std::string htmlContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-            return htmlContent;
-        }
-
-        std::string getHtmlContent(const std::string& path) {
-            std::string html_content = read_html_file(path);
-            return string_replace(html_content, "${FILL_DATA_HERE}", html_placeholder_);
-        }
-
         HttpRequestHandler_t handleGetHtml = [this](const HttpRequest& request) -> HttpResponse {
             HttpResponse response = HttpResponse(HttpStatusCode::Ok);
             response.SetHeader("Content-Type", "text/html");
-            response.SetContent(getHtmlContent("./index.html"));
+            response.SetContent(string_replace(read_html_file(std::string(".") + to_string(request.uri())), "${FILL_DATA_HERE}", html_placeholder_));
             return response;
         };
     public:        
@@ -180,6 +153,7 @@ namespace mta_http_server {
         explicit HttpServer(const std::string& host, std::uint16_t port) : 
             host_(host), port_(port), running_(false), html_placeholder_("Guest"),
             request_handlers_(DefaultRequestHandlers().request_handlers()), socket_service_(SocketService(this)) {
+            
             RegisterHttpRequestHandler("/index.html", HttpMethod::GET, handleGetHtml);
         }
 
