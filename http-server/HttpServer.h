@@ -156,6 +156,16 @@ namespace mta_http_server {
 
             return response;
         };
+        HttpRequestHandler_t handleRemovePlaceholder = [this](const HttpRequest& request) -> HttpResponse {
+            HttpResponse response = HttpResponse(HttpStatusCode::Ok);
+
+            html_placeholder_ = "Guest";
+
+            response.SetHeader("Content-Type", "text/plain");
+            response.SetContent("OK");
+
+            return response;
+        };
     public:
         HttpServer() = default;
         HttpServer(const HttpServer&) = default;
@@ -166,6 +176,7 @@ namespace mta_http_server {
             request_handlers_(DefaultRequestHandlers().request_handlers()), socket_service_(SocketService(this)) {
             RegisterHttpRequestHandler("/index.html", HttpMethod::GET, handleGetHtml);
             RegisterHttpRequestHandler("/index.html", HttpMethod::PUT, handlePutPlaceholder);
+            RegisterHttpRequestHandler("/index.html", HttpMethod::DELETE_, handleRemovePlaceholder);
         }
 
         HttpServer& operator=(HttpServer&&) = default;
