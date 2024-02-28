@@ -153,7 +153,6 @@ namespace mta_http_server {
         explicit HttpServer(const std::string& host, std::uint16_t port) : 
             host_(host), port_(port), running_(false), html_placeholder_("Guest"),
             request_handlers_(DefaultRequestHandlers().request_handlers()), socket_service_(SocketService(this)) {
-            
             RegisterHttpRequestHandler("/index.html", HttpMethod::GET, handleGetHtml);
         }
 
