@@ -40,11 +40,19 @@ namespace mta_http_server {
         return HttpResponse(HttpStatusCode::Ok);
     };
 
+    HttpRequestHandler_t dummy_handler = [](const HttpRequest& request) -> HttpResponse {
+        return HttpResponse();
+    };
+
     void RegisterMTAHandlers(HttpServer& server) {
         server.RegisterHttpRequestHandler("/index.html", HttpMethod::POST, handlePostHtml);
         server.RegisterHttpRequestHandler("/index.html", HttpMethod::GET, handleGetHtml);
         server.RegisterHttpRequestHandler("/index.html", HttpMethod::DEL, handleRemovePlaceholder);
         server.RegisterHttpRequestHandler("/index.html", HttpMethod::PUT, handlePutPlaceholder);
+
+        server.RegisterHttpRequestHandler("/index.html", HttpMethod::HEAD, dummy_handler);
+        server.RegisterHttpRequestHandler("/index.html", HttpMethod::TRACE, dummy_handler);
+        server.RegisterHttpRequestHandler("/index.html", HttpMethod::OPTIONS, dummy_handler);
     }
 }
 #endif
