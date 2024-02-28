@@ -16,21 +16,20 @@ namespace mta_http_server {
         auto it = request.params().find("lng");
 
         if (it != request.params().end())
-            // Add try/catch
-            lang_param = string_to_language(it->second);
+            lang_param = string_to_language(it->second); // Add try/catch
 
         std::string placeholder = SingletonHtmlPlaceholder::getInstance().get();
 
         switch (lang_param) {
         case QLanguage::HE:
-            file_path = "./index.html";
+            file_path = "./index-he.html";
             if (placeholder.empty())
                 line_to_insert = "הממ... לא נראה שיש כאן משהו";
             else
                 line_to_insert = "מישהו מוסר: " + placeholder;
             break;
         case QLanguage::FR:
-            file_path = "./index.html";
+            file_path = "./index-fr.html";
             if (placeholder.empty())
                 line_to_insert = "Il ne semble pas y avoir quelque chose ici...";
             else
