@@ -171,4 +171,4 @@ namespace mta_http_server {
         const bool running() const { return running_; }
     };
 }
-#endif //HTTP_SERVER_H
+#endif //HTTP_SERVER_H_
