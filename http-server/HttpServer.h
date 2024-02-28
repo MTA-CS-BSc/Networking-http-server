@@ -139,13 +139,24 @@ namespace mta_http_server {
         std::vector<HttpMethod> getMethodsForURI(const Uri&);
         HttpResponse handleTraceRequest(const HttpRequest&);
 
+        //TODO: Inject handlers from outside?
         HttpRequestHandler_t handleGetHtml = [this](const HttpRequest& request) -> HttpResponse {
             HttpResponse response = HttpResponse(HttpStatusCode::Ok);
             response.SetHeader("Content-Type", "text/html");
             response.SetContent(string_replace(read_html_file(std::string(".") + to_string(request.uri())), "${FILL_DATA_HERE}", html_placeholder_));
             return response;
         };
-    public:        
+        HttpRequestHandler_t handlePutPlaceholder = [this](const HttpRequest& request) -> HttpResponse {
+            HttpResponse response = HttpResponse(HttpStatusCode::Ok);
+            
+            html_placeholder_ = request.content();
+
+            response.SetHeader("Content-Type", "text/plain");
+            response.SetContent("OK");
+
+            return response;
+        };
+    public:
         HttpServer() = default;
         HttpServer(const HttpServer&) = default;
         HttpServer(HttpServer&&) = default;
@@ -154,6 +165,7 @@ namespace mta_http_server {
             host_(host), port_(port), running_(false), html_placeholder_("Guest"),
             request_handlers_(DefaultRequestHandlers().request_handlers()), socket_service_(SocketService(this)) {
             RegisterHttpRequestHandler("/index.html", HttpMethod::GET, handleGetHtml);
+            RegisterHttpRequestHandler("/index.html", HttpMethod::PUT, handlePutPlaceholder);
         }
 
         HttpServer& operator=(HttpServer&&) = default;
