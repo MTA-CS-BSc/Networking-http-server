@@ -166,6 +166,10 @@ namespace mta_http_server {
 
             return response;
         };
+        HttpRequestHandler_t handlePostHtml = [this](const HttpRequest& request) -> HttpResponse {
+            std::cout << request.content() << std::endl;
+            return HttpResponse(HttpStatusCode::Ok);
+        };
     public:
         HttpServer() = default;
         HttpServer(const HttpServer&) = default;
@@ -177,6 +181,7 @@ namespace mta_http_server {
             RegisterHttpRequestHandler("/index.html", HttpMethod::GET, handleGetHtml);
             RegisterHttpRequestHandler("/index.html", HttpMethod::PUT, handlePutPlaceholder);
             RegisterHttpRequestHandler("/index.html", HttpMethod::DELETE_, handleRemovePlaceholder);
+            RegisterHttpRequestHandler("/index.html", HttpMethod::POST, handlePostHtml);
         }
 
         HttpServer& operator=(HttpServer&&) = default;
