@@ -10,6 +10,7 @@
 #include <functional>
 #include "HttpMessage.h"
 #include "Uri.h"
+#include "SingletonHtmlPlaceholder.h"
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
@@ -131,79 +132,37 @@ namespace mta_http_server {
         bool running_;
         request_handlers_t request_handlers_;
         SocketService socket_service_;
-        std::string html_placeholder_;
 
         // Default head, trace, options
         HttpResponse handleOptionsRequest(const HttpRequest&);
         HttpResponse handleHeadRequest(const HttpRequest&);
         std::vector<HttpMethod> getMethodsForURI(const Uri&);
         HttpResponse handleTraceRequest(const HttpRequest&);
-
-        //TODO: Inject handlers from outside?
-        HttpRequestHandler_t handleGetHtml = [this](const HttpRequest& request) -> HttpResponse {
-            HttpResponse response = HttpResponse(HttpStatusCode::Ok);
-            response.SetHeader("Content-Type", "text/html");
-            response.SetContent(string_replace(read_html_file(std::string(".") + to_string(request.uri())), "${FILL_DATA_HERE}", html_placeholder_));
-            return response;
-        };
-        HttpRequestHandler_t handlePutPlaceholder = [this](const HttpRequest& request) -> HttpResponse {
-            HttpResponse response = HttpResponse(HttpStatusCode::Ok);
-            
-            html_placeholder_ = request.content();
-
-            response.SetHeader("Content-Type", "text/plain");
-            response.SetContent("OK");
-
-            return response;
-        };
-        HttpRequestHandler_t handleRemovePlaceholder = [this](const HttpRequest& request) -> HttpResponse {
-            HttpResponse response = HttpResponse(HttpStatusCode::Ok);
-
-            html_placeholder_ = "Guest";
-
-            response.SetHeader("Content-Type", "text/plain");
-            response.SetContent("OK");
-
-            return response;
-        };
-        HttpRequestHandler_t handlePostHtml = [this](const HttpRequest& request) -> HttpResponse {
-            std::cout << request.content() << std::endl;
-            return HttpResponse(HttpStatusCode::Ok);
-        };
     public:
         HttpServer() = default;
         HttpServer(const HttpServer&) = default;
         HttpServer(HttpServer&&) = default;
-
-        explicit HttpServer(const std::string& host, std::uint16_t port) : 
-            host_(host), port_(port), running_(false), html_placeholder_("Guest"),
-            request_handlers_(DefaultRequestHandlers().request_handlers()), socket_service_(SocketService(this)) {
-            RegisterHttpRequestHandler("/index.html", HttpMethod::GET, handleGetHtml);
-            RegisterHttpRequestHandler("/index.html", HttpMethod::PUT, handlePutPlaceholder);
-            RegisterHttpRequestHandler("/index.html", HttpMethod::DELETE_, handleRemovePlaceholder);
-            RegisterHttpRequestHandler("/index.html", HttpMethod::POST, handlePostHtml);
-        }
-
         HttpServer& operator=(HttpServer&&) = default;
         ~HttpServer() = default;
+
+        explicit HttpServer(const std::string& host, std::uint16_t port) : 
+            host_(host), port_(port), running_(false),
+            request_handlers_(DefaultRequestHandlers().request_handlers()), socket_service_(SocketService(this)) {
+            SingletonHtmlPlaceholder::getInstance().set("Guest");
+        }
 
         void Start();
         void Listen(SOCKET& listen_socket);
         inline void Stop() { running_ = false; }
-        void ProcessEvents();
-
-        void SetPort(std::uint16_t port) { port_ = port; }
         
         void RegisterHttpRequestHandler(const std::string& path, HttpMethod method,
-            const HttpRequestHandler_t& callback) {
-            request_handlers_[Uri(path)].insert(std::make_pair(method, callback));
-        }
+            const HttpRequestHandler_t& callback) { request_handlers_[Uri(path)].insert(std::make_pair(method, callback)); }
         void RegisterHttpRequestHandler(const Uri& uri, HttpMethod method,
-            const HttpRequestHandler_t& callback) {
-            request_handlers_[uri].insert(std::make_pair(method, callback));
-        }
+            const HttpRequestHandler_t& callback) { request_handlers_[uri].insert(std::make_pair(method, callback)); }
 
+        void ProcessEvents();
         HttpResponse HandleHttpRequest(const HttpRequest& request);
+        inline void SetPort(std::uint16_t port) { port_ = port; }
 
         const SOCKET_STATE* sockets() const { return socket_service_.sockets(); }
         const int max_sockets() const { return socket_service_.max_sockets(); }
