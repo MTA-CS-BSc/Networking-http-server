@@ -1,4 +1,4 @@
-#ifndef MTA_SERVER_HANDLERS_H_
+﻿#ifndef MTA_SERVER_HANDLERS_H_
 #define MTA_SERVER_HANDLERS_H_
 
 #include "HttpServer.h"
@@ -19,20 +19,34 @@ namespace mta_http_server {
             // Add try/catch
             lang_param = string_to_language(it->second);
 
+        std::string placeholder = SingletonHtmlPlaceholder::getInstance().get();
+
         switch (lang_param) {
         case QLanguage::HE:
-            file_path = "./index-he.html";
+            file_path = "./index.html";
+            if (placeholder.empty())
+                line_to_insert = "הממ... לא נראה שיש כאן משהו";
+            else
+                line_to_insert = "מישהו מוסר: " + placeholder;
             break;
         case QLanguage::FR:
-            file_path = "./index-fr.html";
+            file_path = "./index.html";
+            if (placeholder.empty())
+                line_to_insert = "Il ne semble pas y avoir quelque chose ici...";
+            else
+                line_to_insert = "Quelqu'un a laissé un message: " + placeholder;
             break;
         case QLanguage::EN:
         default:
             file_path = "./index.html";
+            if (placeholder.empty())
+                line_to_insert = "Hmm... It doesn't look like there's something here";
+            else
+                line_to_insert = "Someone left a message: " + placeholder;
             break;
         }
         
-        response.SetContent(string_replace(read_html_file(file_path), "${FILL_DATA_HERE}", line_to_insert));
+        response.SetContent(string_replace(read_html_file(file_path), "${PLACEHOLDER}", line_to_insert));
         return response;
     };
 
@@ -50,7 +64,7 @@ namespace mta_http_server {
     HttpRequestHandler_t handleRemovePlaceholder = [](const HttpRequest& request) -> HttpResponse {
         HttpResponse response = HttpResponse(HttpStatusCode::Ok);
 
-        SingletonHtmlPlaceholder::getInstance().set("Guest");
+        SingletonHtmlPlaceholder::getInstance().set("");
 
         response.SetHeader("Content-Type", "text/plain");
         response.SetContent("OK");
