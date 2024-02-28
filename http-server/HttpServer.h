@@ -47,11 +47,6 @@ namespace mta_http_server {
         
         void RegisterHttpRequestHandler(const Uri& uri, HttpMethod method,
             const HttpRequestHandler_t& callback) {
-            if (method == HttpMethod::OPTIONS ||
-                method == HttpMethod::TRACE ||
-                method == HttpMethod::HEAD)
-                throw std::logic_error("Can't assign to functions with default behaviour");
-
             request_handlers_[uri].insert(std::make_pair(method, callback));
         }
 
