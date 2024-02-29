@@ -3,6 +3,8 @@
 
 #include "HttpServer.h"
 
+#define LANGUAGE_PARAM_KEY "lang"
+
 using mta_http_server::HttpServer;
 
 namespace mta_http_server {
@@ -13,7 +15,7 @@ namespace mta_http_server {
         std::string file_path, line_to_insert = "-";
         QLanguage lang_param = QLanguage::EN;
 
-        auto it = request.params().find("lng");
+        auto it = request.params().find(LANGUAGE_PARAM_KEY);
 
         if (it != request.params().end())
             lang_param = string_to_language(it->second); // Add try/catch
