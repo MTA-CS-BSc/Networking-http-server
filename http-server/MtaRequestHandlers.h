@@ -19,7 +19,7 @@ namespace mta_http_server {
         auto it = request.params().find(LANGUAGE_PARAM_KEY);
 
         if (it != request.params().end())
-            lang_param = string_to_language(it->second); // Add try/catch
+            lang_param = string_to_language(it->second); //TODO: Add try/catch
 
         std::string placeholder = SingletonHtmlPlaceholder::getInstance().get();
 
@@ -79,7 +79,7 @@ namespace mta_http_server {
     };
 
     HttpRequestHandler_t dummy_handler = [](const HttpRequest& request) -> HttpResponse {
-        return HttpResponse();
+        return HttpResponse(HttpStatusCode::Ok);
     };
 
     void RegisterMTAHandlers(HttpServer& server) {

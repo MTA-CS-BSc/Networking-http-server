@@ -56,7 +56,7 @@ namespace mta_http_server {
         }
 
         HttpRequestHandler_t dummy_handler = [](const HttpRequest& request) -> HttpResponse {
-            return HttpResponse();
+            return HttpResponse(HttpStatusCode::Ok);
         };
 
         void RegisterDummy(const Uri& uri, HttpMethod method) {
