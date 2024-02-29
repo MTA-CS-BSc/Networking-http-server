@@ -96,7 +96,7 @@ namespace mta_http_server {
 		bytesSent = send(msgSocket, sockets_[index].buffer, strlen(sockets_[index].buffer), 0);
 
 		if (SOCKET_ERROR == bytesSent) {
-			std::cout << "Time Server: Error at send(): " << WSAGetLastError() << std::endl;
+			std::cout << "Server: Error at send(): " << WSAGetLastError() << std::endl;
 			return;
 		}
 
@@ -141,7 +141,7 @@ namespace mta_http_server {
 			int last_err = WSAGetLastError();
 			closesocket(listen_socket);
 			WSACleanup();
-			throw std::runtime_error("Time Server: Error at listen(): " + last_err);
+			throw std::runtime_error("Server: Error at listen(): " + last_err);
 		}
 
 		socket_service_.addSocket(listen_socket, LISTEN);
