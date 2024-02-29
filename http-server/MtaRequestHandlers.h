@@ -12,7 +12,8 @@ namespace mta_http_server {
         HttpResponse response = HttpResponse(HttpStatusCode::Ok);
         response.SetHeader("Content-Type", "text/html");
 
-        std::string file_path, line_to_insert = "-";
+        std::string file_path, line_to_insert;
+        int last_line_length;
         QLanguage lang_param = QLanguage::EN;
 
         auto it = request.params().find(LANGUAGE_PARAM_KEY);
@@ -28,17 +29,25 @@ namespace mta_http_server {
         switch (lang_param) {
         case QLanguage::HE:
             file_path = "./index-he.html";
+            last_line_length = 32;
             break;
         case QLanguage::FR:
             file_path = "./index-fr.html";
+            last_line_length = 27;
             break;
         case QLanguage::EN:
         default:
             file_path = "./index.html";
+            last_line_length = 24;
             break;
         }
         
-        response.SetContent(string_replace(read_html_file(file_path), "${PLACEHOLDER}", line_to_insert));
+        std::string altered_html = string_replace(read_html_file(file_path), "${PLACEHOLDER}", line_to_insert);
+
+        if (line_to_insert.empty())
+            altered_html = altered_html.erase(altered_html.find("<h4>"), last_line_length);
+            
+        response.SetContent(altered_html);
         return response;
     };
 
