@@ -12,7 +12,6 @@ int main() {
     RegisterMTAHandlers(server);
 
     server.Start();
-    server.ProcessEvents();
     server.Stop();
 
     return 0;

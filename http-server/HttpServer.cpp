@@ -131,6 +131,7 @@ namespace mta_http_server {
 		}
 
 		Listen(listen_socket);
+		ProcessEvents(listen_socket);
 	}
 
 	void HttpServer::Listen(SOCKET& listen_socket) {
@@ -209,16 +210,7 @@ namespace mta_http_server {
 		}
 	}
 
-	SOCKET_STATE* SocketService::findListeningSocket() {
-		for (auto& item : sockets_) {
-			if (item.recv == SocketFunction::LISTEN)
-				return &item;
-		}
-
-		return nullptr;
-	}
-
-	void HttpServer::ProcessEvents() {
+	void HttpServer::ProcessEvents(SOCKET& listen_socket) {
 		while (running_) {
 			fd_set waitRecv;
 			FD_ZERO(&waitRecv);
@@ -264,13 +256,14 @@ namespace mta_http_server {
 					switch (sockets()[i].send) {
 					case SEND:
 						socket_service_.sendMessage(i);
+						closesocket(sockets()[i].id);
 						break;
 					}
 				}
 			}
 		}
 
-		closesocket(socket_service_.findListeningSocket()->id);
+		closesocket(listen_socket);
 		WSACleanup();
 	}
 }

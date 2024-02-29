@@ -99,7 +99,6 @@ namespace mta_http_server {
             sockets_amount_(0), sockets_() { }
         ~SocketService() = default;
         SocketService(SocketService&&) = default;
-        SOCKET_STATE* findListeningSocket();
         bool addSocket(SOCKET id, SocketFunction what);
         void removeSocket(int index);
         void acceptConnection(int index);
@@ -153,7 +152,7 @@ namespace mta_http_server {
         void RegisterHttpRequestHandler(const Uri& uri, HttpMethod method,
             const HttpRequestHandler_t& callback) { request_handlers_[uri].insert(std::make_pair(method, callback)); }
 
-        void ProcessEvents();
+        void ProcessEvents(SOCKET& listen_socket);
         HttpResponse HandleHttpRequest(const HttpRequest& request);
         inline void SetPort(std::uint16_t port) { port_ = port; }
 
