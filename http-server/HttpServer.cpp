@@ -133,6 +133,9 @@ namespace mta_http_server {
 		}
 
 		Listen(listen_socket);
+
+		std::cout << "Server is listening on port 8080..." << std::endl;
+
 		ProcessEvents(listen_socket);
 	}
 

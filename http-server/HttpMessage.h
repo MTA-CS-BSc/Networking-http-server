@@ -66,7 +66,7 @@ namespace mta_http_server {
         HttpVersionNotSupported = 505
     };
 
-    enum QLanguage {
+    enum class QLanguage {
         HE,
         EN,
         FR
