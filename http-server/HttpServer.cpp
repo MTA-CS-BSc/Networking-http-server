@@ -75,6 +75,7 @@ namespace mta_http_server {
 			HttpRequest request = string_to_request(sockets_[index].buffer);
 
 			sockets_[index].len = 0;
+			std::fill(std::begin(sockets_[index].buffer), std::end(sockets_[index].buffer), '\0');
 
 			// Handle request
 			HttpResponse response = parent_->HandleHttpRequest(request);
