@@ -335,6 +335,8 @@
 							"\r",
 							"    pm.expect(pm.response.text()).to.not.include(\"<h4>\");\r",
 							"\r",
+							"    pm.expect(pm.response.text()).to.include(\"lang=\\\"en\\\"\");\r",
+							"\r",
 							"    pm.response.to.have.status(200);\r",
 							"});"
 						],
@@ -346,7 +348,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/index.html?lang=en",
+					"raw": "http://localhost:8080/index.html",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -354,12 +356,6 @@
 					"port": "8080",
 					"path": [
 						"index.html"
-					],
-					"query": [
-						{
-							"key": "lang",
-							"value": "en"
-						}
 					]
 				}
 			},
@@ -408,7 +404,7 @@
 			"response": []
 		},
 		{
-			"name": "index.html",
+			"name": "index.html + query param \"en\"",
 			"event": [
 				{
 					"listen": "test",
@@ -421,6 +417,8 @@
 							"\r",
 							"    pm.expect(pm.response.text()).to.include(\"<h4>\");\r",
 							"\r",
+							"    pm.expect(pm.response.text()).to.include(\"lang=\\\"en\\\"\");\r",
+							"\r",
 							"    pm.response.to.have.status(200);\r",
 							"});"
 						],
@@ -432,7 +430,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/index.html",
+					"raw": "http://localhost:8080/index.html?lang=en",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -440,6 +438,104 @@
 					"port": "8080",
 					"path": [
 						"index.html"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "en"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "index.html + query param \"he\"",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"GET index.html Content-Type\", function () {\r",
+							"    const headerValue = pm.response.headers.get(\"Content-Type\");\r",
+							"\r",
+							"    pm.expect(headerValue).to.equals(\"text/html\");\r",
+							"\r",
+							"    pm.expect(pm.response.text()).to.include(\"<h4>\");\r",
+							"\r",
+							"    pm.expect(pm.response.text()).to.include(\"lang=\\\"he\\\"\");\r",
+							"\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/index.html?lang=he",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"index.html"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "he"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "index.html + query param \"fr\"",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"GET index.html Content-Type\", function () {\r",
+							"    const headerValue = pm.response.headers.get(\"Content-Type\");\r",
+							"\r",
+							"    pm.expect(headerValue).to.equals(\"text/html\");\r",
+							"\r",
+							"    pm.expect(pm.response.text()).to.include(\"<h4>\");\r",
+							"\r",
+							"    pm.expect(pm.response.text()).to.include(\"lang=\\\"fr\\\"\");\r",
+							"\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/index.html?lang=fr",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"index.html"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "fr"
+						}
 					]
 				}
 			},
@@ -492,6 +588,8 @@
 							"\r",
 							"    pm.expect(pm.response.text()).to.not.include(\"<h4>\");\r",
 							"\r",
+							"    pm.expect(pm.response.text()).to.include(\"lang=\\\"en\\\"\");\r",
+							"    \r",
 							"    pm.response.to.have.status(200);\r",
 							"});"
 						],
