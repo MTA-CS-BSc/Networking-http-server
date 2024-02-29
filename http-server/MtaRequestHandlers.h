@@ -2,6 +2,7 @@
 #define MTA_SERVER_HANDLERS_H_
 
 #include "HttpServer.h"
+#include "FilePaths.h"
 
 #define LANGUAGE_PARAM_KEY "lang"
 
@@ -28,16 +29,16 @@ namespace mta_http_server {
 
         switch (lang_param) {
         case QLanguage::HE:
-            file_path = "./index-he.html";
+            file_path = INDEX_HTML_HE_PATH;
             last_line_length = 32;
             break;
         case QLanguage::FR:
-            file_path = "./index-fr.html";
+            file_path = INDEX_HTML_FR_PATH;
             last_line_length = 27;
             break;
         case QLanguage::EN:
         default:
-            file_path = "./index.html";
+            file_path = INDEX_HTML_EN_PATH;
             last_line_length = 24;
             break;
         }
