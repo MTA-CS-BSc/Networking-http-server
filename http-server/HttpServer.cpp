@@ -74,6 +74,8 @@ namespace mta_http_server {
 			//TODO: Add try/catch
 			HttpRequest request = string_to_request(sockets_[index].buffer);
 
+			sockets_[index].len = 0;
+
 			// Handle request
 			HttpResponse response = parent_->HandleHttpRequest(request);
 
@@ -81,11 +83,8 @@ namespace mta_http_server {
 			std::string string_response = to_string(response);
 
 			// Copy response data to corresponding buffer
-			sockets_[index].recv = EMPTY;
-			sockets_[index].send = SEND;
-
-			std::fill(std::begin(sockets_[index].buffer), std::end(sockets_[index].buffer), '\0');
 			memcpy(sockets_[index].buffer, string_response.c_str(), string_response.length());
+			sockets_[index].send = SEND;
 		}
 	}
 
@@ -101,7 +100,9 @@ namespace mta_http_server {
 		}
 
 		std::cout << "Server: Sent: " << bytesSent << "\\" << strlen(sockets_[index].buffer) << " bytes of \"" << sockets_[index].buffer << "\" message.\n\n";
-		sockets_[index].send = IDLE;
+		
+		if (sockets_[index].len == 0)
+			sockets_[index].send = IDLE;
 	}
 
 	void HttpServer::Start() {
@@ -256,7 +257,6 @@ namespace mta_http_server {
 					switch (sockets()[i].send) {
 					case SEND:
 						socket_service_.sendMessage(i);
-						closesocket(sockets()[i].id);
 						break;
 					}
 				}
