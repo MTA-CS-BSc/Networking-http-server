@@ -1,6 +1,17 @@
 #include "HttpServer.h"
 
 namespace mta_http_server {
+	long long current_seconds() {
+		auto now = std::chrono::steady_clock::now();
+		auto seconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+
+		return seconds;
+	}
+
+	long long elapsed_seconds(long long prev) {
+		return current_seconds()  - prev;
+	}
+
 	bool SocketService::addSocket(SOCKET id, SocketFunction what) {
 		for (int i = 0; i < max_sockets_; i++) {
 			if (sockets_[i].recv == SocketFunction::EMPTY) {
@@ -8,6 +19,7 @@ namespace mta_http_server {
 				sockets_[i].recv = what;
 				sockets_[i].send = SocketFunction::IDLE;
 				sockets_[i].len = 0;
+				sockets_[i].last_message_time = current_seconds();
 				sockets_amount_++;
 				return true;
 			}
@@ -50,8 +62,6 @@ namespace mta_http_server {
 
 		int len = sockets_[index].len;
 		int bytesRecv = recv(msgSocket, &sockets_[index].buffer[len], sizeof(sockets_[index].buffer) - len, 0);
-
-		//TODO: Update last timestamp
 
 		if (SOCKET_ERROR == bytesRecv) {
 			std::cout << "Server: Error at recv(): " << WSAGetLastError() << std::endl;
@@ -109,10 +119,10 @@ namespace mta_http_server {
 	}
 
 	bool SocketService::isSilent(const SOCKET_STATE& socket) {
-		return false;
+		return elapsed_seconds(socket.last_message_time) > 120;
 	}
 
-	void SocketService::closeSilentConnections() {
+	void SocketService::CloseSilentConnections() {
 		for (int i = 0; i < max_sockets_; i++) {
 			SOCKET_STATE current_socket = sockets_[i];
 
@@ -232,58 +242,63 @@ namespace mta_http_server {
 		}
 	}
 
+	void SocketService::ManageSelectors() {
+		fd_set waitRecv;
+		FD_ZERO(&waitRecv);
+
+		for (int i = 0; i < max_sockets_; i++) {
+			if (sockets_[i].recv == LISTEN || sockets_[i].recv == RECEIVE)
+				FD_SET(sockets_[i].id, &waitRecv);
+		}
+
+		fd_set waitSend;
+		FD_ZERO(&waitSend);
+
+		for (int i = 0; i < max_sockets_; i++) {
+			if (sockets_[i].send == SEND)
+				FD_SET(sockets_[i].id, &waitSend);
+		}
+
+		int nfd;
+		nfd = select(0, &waitRecv, &waitSend, NULL, NULL);
+		if (nfd == SOCKET_ERROR) {
+			std::cout << "Server: Error at select(): " << WSAGetLastError() << std::endl;
+			WSACleanup();
+			return;
+		}
+
+		for (int i = 0; i < max_sockets_ && nfd > 0; i++) {
+			if (FD_ISSET(sockets_[i].id, &waitRecv)) {
+				nfd--;
+				switch (sockets_[i].recv) {
+				case LISTEN:
+					acceptConnection(i);
+					break;
+
+				case RECEIVE:
+					sockets_[i].last_message_time = current_seconds();
+					receiveMessage(i);
+					break;
+				}
+			}
+		}
+
+		for (int i = 0; i < max_sockets_ && nfd > 0; i++) {
+			if (FD_ISSET(sockets_[i].id, &waitSend)) {
+				nfd--;
+				switch (sockets_[i].send) {
+				case SEND:
+					sendMessage(i);
+					break;
+				}
+			}
+		}
+	}
+
 	void HttpServer::ProcessEvents(SOCKET& listen_socket) {
 		while (running_) {
-			fd_set waitRecv;
-			FD_ZERO(&waitRecv);
-			for (int i = 0; i < max_sockets(); i++) {
-				if ((sockets()[i].recv == LISTEN) || (sockets()[i].recv == RECEIVE))
-					FD_SET(sockets()[i].id, &waitRecv);
-			}
-
-			fd_set waitSend;
-			FD_ZERO(&waitSend);
-
-			for (int i = 0; i < max_sockets(); i++) {
-				if (sockets()[i].send == SEND)
-					FD_SET(sockets()[i].id, &waitSend);
-			}
-
-			int nfd;
-			nfd = select(0, &waitRecv, &waitSend, NULL, NULL);
-			if (nfd == SOCKET_ERROR) {
-				std::cout << "Server: Error at select(): " << WSAGetLastError() << std::endl;
-				WSACleanup();
-				return;
-			}
-
-			for (int i = 0; i < max_sockets() && nfd > 0; i++) {
-				if (FD_ISSET(sockets()[i].id, &waitRecv)) {
-					nfd--;
-					switch (sockets()[i].recv) {
-					case LISTEN:
-						socket_service_.acceptConnection(i);
-						break;
-
-					case RECEIVE:
-						socket_service_.receiveMessage(i);
-						break;
-					}
-				}
-			}
-
-			for (int i = 0; i < max_sockets() && nfd > 0; i++) {
-				if (FD_ISSET(sockets()[i].id, &waitSend)) {
-					nfd--;
-					switch (sockets()[i].send) {
-					case SEND:
-						socket_service_.sendMessage(i);
-						break;
-					}
-				}
-			}
-
-			socket_service_.closeSilentConnections();
+			socket_service_.ManageSelectors();
+			socket_service_.CloseSilentConnections();
 		}
 
 		closesocket(listen_socket);

@@ -11,6 +11,7 @@
 #include "HttpMessage.h"
 #include "Uri.h"
 #include "SingletonHtmlPlaceholder.h"
+#include <chrono>
 
 using mta_http_server::HttpRequest;
 using mta_http_server::HttpMethod;
@@ -27,6 +28,7 @@ namespace mta_http_server {
         int	send;			// Sending?
         char buffer[Settings::MAX_BUFFER_SIZE];
         int len;
+        long long last_message_time;
     } SOCKET_STATE;
 
     typedef std::map<Uri, std::map<HttpMethod, HttpRequestHandler_t>> request_handlers_t;
@@ -105,7 +107,8 @@ namespace mta_http_server {
         void acceptConnection(int index);
         void receiveMessage(int index);
         void sendMessage(int index);
-        void closeSilentConnections();
+        void ManageSelectors();
+        void CloseSilentConnections();
 
         void SetSocketsAmount(int value) { sockets_amount_ = value; }
         void SetServerService(ADDRESS_FAMILY sin_family, ULONG addr, uint16_t port) {
@@ -164,5 +167,8 @@ namespace mta_http_server {
         const std::uint16_t port() const { return port_; }
         const bool running() const { return running_; }
     };
+
+    long long current_seconds();
+    long long elapsed_seconds(long long prev);
 }
 #endif //HTTP_SERVER_H_
