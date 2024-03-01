@@ -74,6 +74,7 @@ namespace mta_http_server {
 
     // Utility functions to convert between string or integer to enum classes
     std::string to_string(HttpMethod method);
+    std::string to_string(const std::vector<HttpMethod>& methods);
     std::string to_string(HttpVersion version);
     std::string to_string(HttpStatusCode status_code);
     HttpMethod string_to_method(const std::string& method_string);
@@ -182,7 +183,6 @@ namespace mta_http_server {
     };
 
     // Utility functions to convert HTTP message objects to string and vice versa
-    std::string to_string(const std::vector<HttpMethod>& methods);
     std::string to_string(const Uri&);
     std::string to_string(const HttpRequest& request);
     std::string to_string(const HttpResponse& response, bool send_content = true);
@@ -192,6 +192,6 @@ namespace mta_http_server {
     std::string get_timestamp_for_response();
     std::string string_replace(const std::string& str, const std::string& replace_from, const std::string& replace_to);
     std::string read_html_file(const std::string&);
-    std::string transform(const std::string& str, const char& method);
+    std::string str_transform(const std::string& str, const char& method);
 }
 #endif  // HTTP_MESSAGE_H_

@@ -106,7 +106,7 @@ namespace mta_http_server {
         }
     }
 
-    std::string transform(const std::string& str, const char& method) {
+    std::string str_transform(const std::string& str, const char& method) {
         std::string transformed;
         std::transform(str.begin(), str.end(),
             std::back_inserter(transformed),
@@ -116,7 +116,7 @@ namespace mta_http_server {
     }
 
     HttpMethod string_to_method(const std::string& method_string) {
-        std::string method_string_uppercase = transform(method_string, 'u');
+        std::string method_string_uppercase = str_transform(method_string, 'u');
 
         if (method_string_uppercase == "GET") {
             return HttpMethod::GET;
@@ -151,7 +151,7 @@ namespace mta_http_server {
     }
 
     HttpVersion string_to_version(const std::string& version_string) {
-        std::string version_string_uppercase = transform(version_string, 'u');
+        std::string version_string_uppercase = str_transform(version_string, 'u');
 
         if (version_string_uppercase == "HTTP/0.9")
             return HttpVersion::HTTP_0_9;
@@ -166,7 +166,7 @@ namespace mta_http_server {
     }
 
     QLanguage string_to_language(const std::string& lang_string) {
-        std::string lang_lower_case = transform(lang_string, 'l');
+        std::string lang_lower_case = str_transform(lang_string, 'l');
 
         if (lang_string == "he")
             return QLanguage::HE;
