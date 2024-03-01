@@ -169,6 +169,70 @@
 			"response": []
 		},
 		{
+			"name": "A not found route",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/some_route",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"some_route"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "A not allowed method",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 405\", function () {\r",
+							"    pm.response.to.have.status(405);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "index.html",
 			"event": [
 				{
@@ -268,10 +332,10 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "SOMETHING",
+					"raw": "Maya was here!!",
 					"options": {
 						"raw": {
-							"language": "json"
+							"language": "text"
 						}
 					}
 				},
