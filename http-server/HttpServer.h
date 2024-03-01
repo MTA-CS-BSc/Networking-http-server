@@ -92,6 +92,7 @@ namespace mta_http_server {
         int sockets_amount_;
         int max_sockets_;
         HttpServer* parent_;
+        bool isSilent(const SOCKET_STATE&);
     public:
         SocketService(HttpServer* parent) :
             parent_(parent), server_service_(),
@@ -104,6 +105,7 @@ namespace mta_http_server {
         void acceptConnection(int index);
         void receiveMessage(int index);
         void sendMessage(int index);
+        void closeSilentConnections();
 
         void SetSocketsAmount(int value) { sockets_amount_ = value; }
         void SetServerService(ADDRESS_FAMILY sin_family, ULONG addr, uint16_t port) {

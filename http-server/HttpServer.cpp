@@ -2,7 +2,7 @@
 
 namespace mta_http_server {
 	bool SocketService::addSocket(SOCKET id, SocketFunction what) {
-		for (int i = 0; i < max_sockets(); i++) {
+		for (int i = 0; i < max_sockets_; i++) {
 			if (sockets_[i].recv == SocketFunction::EMPTY) {
 				sockets_[i].id = id;
 				sockets_[i].recv = what;
@@ -50,6 +50,8 @@ namespace mta_http_server {
 
 		int len = sockets_[index].len;
 		int bytesRecv = recv(msgSocket, &sockets_[index].buffer[len], sizeof(sockets_[index].buffer) - len, 0);
+
+		//TODO: Update last timestamp
 
 		if (SOCKET_ERROR == bytesRecv) {
 			std::cout << "Server: Error at recv(): " << WSAGetLastError() << std::endl;
@@ -104,6 +106,21 @@ namespace mta_http_server {
 		
 		if (sockets_[index].len == 0)
 			sockets_[index].send = IDLE;
+	}
+
+	bool SocketService::isSilent(const SOCKET_STATE& socket) {
+		return false;
+	}
+
+	void SocketService::closeSilentConnections() {
+		for (int i = 0; i < max_sockets_; i++) {
+			SOCKET_STATE current_socket = sockets_[i];
+
+			if (current_socket.send == IDLE && current_socket.recv == RECEIVE && isSilent(current_socket)) {
+				closesocket(current_socket.id);
+				removeSocket(i);
+			}
+		}
 	}
 
 	void HttpServer::Start() {
@@ -265,6 +282,8 @@ namespace mta_http_server {
 					}
 				}
 			}
+
+			socket_service_.closeSilentConnections();
 		}
 
 		closesocket(listen_socket);
