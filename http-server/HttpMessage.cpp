@@ -118,36 +118,26 @@ namespace mta_http_server {
     HttpMethod string_to_method(const std::string& method_string) {
         std::string method_string_uppercase = str_transform(method_string, 'u');
 
-        if (method_string_uppercase == "GET") {
+        if (method_string_uppercase == "GET")
             return HttpMethod::GET;
-        }
-        else if (method_string_uppercase == "HEAD") {
+        else if (method_string_uppercase == "HEAD")
             return HttpMethod::HEAD;
-        }
-        else if (method_string_uppercase == "POST") {
+        else if (method_string_uppercase == "POST")
             return HttpMethod::POST;
-        }
-        else if (method_string_uppercase == "PUT") {
+        else if (method_string_uppercase == "PUT")
             return HttpMethod::PUT;
-        }
-        else if (method_string_uppercase == "DELETE") {
+        else if (method_string_uppercase == "DELETE")
             return HttpMethod::DEL;
-        }
-        else if (method_string_uppercase == "CONNECT") {
+        else if (method_string_uppercase == "CONNECT")
             return HttpMethod::CONNECT;
-        }
-        else if (method_string_uppercase == "OPTIONS") {
+        else if (method_string_uppercase == "OPTIONS")
             return HttpMethod::OPTIONS;
-        }
-        else if (method_string_uppercase == "TRACE") {
+        else if (method_string_uppercase == "TRACE")
             return HttpMethod::TRACE;
-        }
-        else if (method_string_uppercase == "PATCH") {
+        else if (method_string_uppercase == "PATCH")
             return HttpMethod::PATCH;
-        }
-        else {
+        else
             throw std::invalid_argument("Unexpected HTTP method");
-        }
     }
 
     HttpVersion string_to_version(const std::string& version_string) {
@@ -292,40 +282,39 @@ namespace mta_http_server {
     }
 
     std::pair<std::string, query_params_t> parseURI(const std::string& uri) {
-    std::string baseURI;
-    query_params_t params;
+        std::string baseURI;
+        query_params_t params;
 
-    // Finding the position of '?' to separate base URI and query parameters
-    std::size_t queryPos = uri.find('?');
-    if (queryPos != std::string::npos) {
-        baseURI = uri.substr(0, queryPos); // Extracting base URI
+        // Finding the position of '?' to separate base URI and query parameters
+        std::size_t queryPos = uri.find('?');
+        if (queryPos != std::string::npos) {
+            baseURI = uri.substr(0, queryPos); // Extracting base URI
 
-        // Extracting and parsing query parameters
-        std::string queryParams = uri.substr(queryPos + 1);
-        std::size_t start = 0, end;
-        while ((end = queryParams.find('&', start)) != std::string::npos) {
-            std::string param = queryParams.substr(start, end - start);
-            std::size_t equalPos = param.find('=');
+            // Extracting and parsing query parameters
+            std::string queryParams = uri.substr(queryPos + 1);
+            std::size_t start = 0, end;
+            while ((end = queryParams.find('&', start)) != std::string::npos) {
+                std::string param = queryParams.substr(start, end - start);
+                std::size_t equalPos = param.find('=');
+                if (equalPos != std::string::npos) {
+                    std::string key = param.substr(0, equalPos);
+                    std::string value = param.substr(equalPos + 1);
+                    params[key] = value;
+                }
+                start = end + 1;
+            }
+
+            // Processing the last parameter (or the only parameter if there's only one)
+            std::string lastParam = queryParams.substr(start);
+            std::size_t equalPos = lastParam.find('=');
             if (equalPos != std::string::npos) {
-                std::string key = param.substr(0, equalPos);
-                std::string value = param.substr(equalPos + 1);
+                std::string key = lastParam.substr(0, equalPos);
+                std::string value = lastParam.substr(equalPos + 1);
                 params[key] = value;
             }
-            start = end + 1;
-        }
+        } else
+            baseURI = uri; // No query parameters, URI is just the base
 
-        // Processing the last parameter (or the only parameter if there's only one)
-        std::string lastParam = queryParams.substr(start);
-        std::size_t equalPos = lastParam.find('=');
-        if (equalPos != std::string::npos) {
-            std::string key = lastParam.substr(0, equalPos);
-            std::string value = lastParam.substr(equalPos + 1);
-            params[key] = value;
-        }
-    } else {
-        baseURI = uri; // No query parameters, URI is just the base
+        return {baseURI, params};
     }
-
-    return {baseURI, params};
-}
 }
