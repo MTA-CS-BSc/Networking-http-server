@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SINGLETON_HTML_PLACEHOLDER_H_
+#define SINGLETON_HTML_PLACEHOLDER_H_
 #include <string>
 
 class SingletonHtmlPlaceholder {
@@ -23,3 +24,5 @@ private:
 
     std::string value;
 };
+
+#endif //SINGLETON_HTML_PLACEHOLDER_H_
