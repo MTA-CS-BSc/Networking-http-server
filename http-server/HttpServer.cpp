@@ -58,6 +58,7 @@ namespace mta_http_server {
 	}
 
 	void SocketService::receiveMessage(int index) {
+		HttpResponse response;
 		SOCKET msgSocket = sockets_[index].id;
 
 		int len = sockets_[index].len;
@@ -83,21 +84,34 @@ namespace mta_http_server {
 			sockets_[index].len += bytesRecv;
 
 			// Convert to HttpRequest
-			//TODO: Add try/catch
-			HttpRequest request = string_to_request(sockets_[index].buffer);
+			try {
+				HttpRequest request = string_to_request(sockets_[index].buffer);
 
-			sockets_[index].len = 0;
-			std::fill(std::begin(sockets_[index].buffer), std::end(sockets_[index].buffer), '\0');
+				sockets_[index].len = 0;
+				std::fill(std::begin(sockets_[index].buffer), std::end(sockets_[index].buffer), '\0');
 
-			// Handle request
-			HttpResponse response = parent_->HandleHttpRequest(request);
+				// Handle request
+				response = parent_->HandleHttpRequest(request);
 
-			// Convert response to string for socket
-			std::string string_response = to_string(response);
+				// Convert response to string for socket
+				std::string string_response = to_string(response);
 
-			// Copy response data to corresponding buffer
-			memcpy(sockets_[index].buffer, string_response.c_str(), string_response.length());
-			sockets_[index].send = SEND;
+				// Copy response data to corresponding buffer
+				memcpy(sockets_[index].buffer, string_response.c_str(), string_response.length());
+				sockets_[index].send = SEND;
+			}
+			catch (const std::invalid_argument& e) {
+				response = HttpResponse(HttpStatusCode::BadRequest);
+				response.SetContent(e.what());
+			}
+			catch (const std::logic_error& e) {
+				response = HttpResponse(HttpStatusCode::HttpVersionNotSupported);
+				response.SetContent(e.what());
+			}
+			catch (const std::exception& e) {
+				response = HttpResponse(HttpStatusCode::InternalServerError);
+				response.SetContent(e.what());
+			}
 		}
 	}
 

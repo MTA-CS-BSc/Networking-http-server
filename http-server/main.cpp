@@ -11,8 +11,12 @@ int main() {
     HttpServer server = HttpServer(Settings::HOST, Settings::PORT);
     RegisterMTAHandlers(server);
 
-    server.Start();
-    server.Stop();
+    try {
+        server.Start();
+        server.Stop();
+    } catch (const std::exception& e) {
+        std::cout << "Server could not be started: " << e.what() << std::endl;
+    }
 
     return 0;
 }

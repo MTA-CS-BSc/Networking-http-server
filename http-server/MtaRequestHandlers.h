@@ -22,7 +22,7 @@ namespace mta_http_server {
         if (it != request.params().end()) {
             try {
                 lang_param = string_to_language(it->second);
-            } catch (const std::invalid_argument& ex) {
+            } catch {
                 lang_param = QLanguage::EN;
             }
         }
