@@ -19,8 +19,13 @@ namespace mta_http_server {
 
         auto it = request.params().find(LANGUAGE_PARAM_KEY);
 
-        if (it != request.params().end())
-            lang_param = string_to_language(it->second); //TODO: Add try/catch
+        if (it != request.params().end()) {
+            try {
+                lang_param = string_to_language(it->second);
+            } catch (const std::invalid_argument& ex) {
+                lang_param = QLanguage::EN;
+            }
+        }
 
         std::string placeholder = SingletonHtmlPlaceholder::getInstance().get();
 
