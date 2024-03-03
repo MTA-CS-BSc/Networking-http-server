@@ -249,7 +249,7 @@ namespace mta_http_server {
         std::pair<std::string, query_params_t> parsed_path = parseURI(path);
         
         request.SetUri(Uri(parsed_path.first));
-        request.SetQueryParams(QueryParams(parsed_path.second));
+        request.SetQueryParams(parsed_path.second);
 
         if (string_to_version(version) != request.version()) {
             throw std::logic_error("HTTP version not supported");

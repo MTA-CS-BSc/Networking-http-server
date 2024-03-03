@@ -122,23 +122,6 @@ namespace mta_http_server {
         size_t content_length() const { return content_.length(); }
     };
 
-    // A QueryParams object represents the query params for a single HTTP request.
-    // By default, HTTP requests without query parameters will have an empty map.
-    class QueryParams {
-    protected:
-        query_params_t params_;
-    public:
-        QueryParams() : params_() { }
-        QueryParams(const query_params_t& params) : params_(params) { }
-        ~QueryParams() = default;
-        void SetParam(const std::string& key, const std::string& value) {
-            params_[key] = value;
-        }
-        void RemoveParam(const std::string& key) { params_.erase(key); }
-        void ClearParams() { params_.clear(); }
-        const query_params_t& params() const { return params_; }
-    };
-
     // An HttpRequest object represents a single HTTP request
     // It has a HTTP method and URI so that the server can identify
     // the corresponding resource and action
@@ -146,16 +129,16 @@ namespace mta_http_server {
     private:
         HttpMethod method_;
         Uri uri_;
-        QueryParams params_;
+        query_params_t params_;
     public:
         HttpRequest() : method_(HttpMethod::GET) {}
         ~HttpRequest() override = default;
 
         void SetMethod(HttpMethod method) { method_ = method; }
         void SetUri(const Uri& uri) { uri_ = uri; }
-        void SetQueryParams(const QueryParams& params) { params_ = params; }
+        void SetQueryParams(const query_params_t& params) { params_ = params; }
 
-        const query_params_t& params() const { return params_.params(); }
+        const query_params_t& params() const { return params_; }
         HttpMethod method() const { return method_; }
         Uri uri() const { return uri_; }
 
